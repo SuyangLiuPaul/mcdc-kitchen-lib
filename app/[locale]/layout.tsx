@@ -7,6 +7,7 @@ import { routing } from "@/i18n/routing";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import AuthSessionProvider from "@/components/layout/SessionProvider";
+import ToastProvider from "@/components/layout/ToastProvider";
 import "../globals.css";
 
 const geist = Geist({ subsets: ["latin"] });
@@ -34,11 +35,13 @@ export default async function LocaleLayout({
   return (
     <AuthSessionProvider>
       <NextIntlClientProvider messages={messages} locale={locale}>
-        <div className={geist.className}>
-          <Navbar />
-          <main className="min-h-screen bg-gray-50">{children}</main>
-          <Footer />
-        </div>
+        <ToastProvider>
+          <div className={geist.className}>
+            <Navbar />
+            <main className="min-h-screen bg-gray-50">{children}</main>
+            <Footer />
+          </div>
+        </ToastProvider>
       </NextIntlClientProvider>
     </AuthSessionProvider>
   );

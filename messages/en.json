@@ -13,8 +13,10 @@
     "subtitle": "Borrow and share household appliances within the community.",
     "searchPlaceholder": "Search items...",
     "allCategories": "All Categories",
-    "noItems": "No items found.",
+    "noItems": "No items listed yet. Be the first to share!",
+    "noResults": "No items match your search. Try different keywords.",
     "itemCount": "{count, plural, =0 {No items} one {# item} other {# items}} available",
+    "clearFilters": "Clear filters",
     "available": "Available",
     "borrowed": "Borrowed"
   },
@@ -33,7 +35,9 @@
     "available": "Available",
     "borrowed": "Borrowed",
     "addedOn": "Added on",
-    "backToList": "← Back to Browse"
+    "backToList": "← Back to Browse",
+    "copy": "Copy",
+    "copied": "Copied!"
   },
   "myItems": {
     "title": "My Items",
@@ -42,7 +46,11 @@
     "editItem": "Edit",
     "deleteItem": "Delete",
     "noItems": "You haven't shared any items yet.",
-    "deleteConfirm": "Are you sure you want to delete this item?",
+    "deleteConfirm": "Are you sure you want to delete this item? This cannot be undone.",
+    "deleteSuccess": "Item deleted.",
+    "addSuccess": "Item added!",
+    "editSuccess": "Item updated!",
+    "statusUpdated": "Status updated!",
     "statusAvailable": "Available",
     "statusBorrowed": "Borrowed",
     "markBorrowed": "Mark as Borrowed",
@@ -55,7 +63,7 @@
     "descriptionZh": "Description (Chinese)",
     "category": "Category",
     "status": "Status",
-    "image": "Item Photo",
+    "image": "Item Photos",
     "imageHint": "Upload a clear photo of the item.",
     "save": "Save Item",
     "cancel": "Cancel",
@@ -64,7 +72,7 @@
     "editItem": "Edit Item",
     "addItem": "Add New Item",
     "photoReady": "✓ Photo ready",
-    "removePhoto": "Remove & re-upload",
+    "removePhoto": "Remove",
     "statusAvailable": "Available",
     "statusBorrowed": "Borrowed",
     "mainPhoto": "Main",
@@ -75,8 +83,9 @@
     "allItems": "All Items",
     "allUsers": "All Users",
     "deleteItem": "Delete",
+    "deleteSuccess": "Item deleted.",
     "banUser": "Ban User",
-    "deleteConfirm": "Are you sure you want to delete this item?",
+    "deleteConfirm": "Are you sure you want to delete this item? This cannot be undone.",
     "colTitle": "Title",
     "colCategory": "Category",
     "colStatus": "Status",
@@ -84,7 +93,9 @@
     "colActions": "Actions",
     "colName": "Name",
     "colEmail": "Email",
-    "colRole": "Role"
+    "colRole": "Role",
+    "totalItems": "items",
+    "totalUsers": "users"
   },
   "auth": {
     "signInRequired": "Please sign in to access this page.",
@@ -93,5 +104,10 @@
   "footer": {
     "tagline": "Sharing is caring — lend what you have, borrow what you need.",
     "copyright": "MCDC Kitchen Library"
+  },
+  "common": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "error": "Something went wrong. Please try again."
   }
 }

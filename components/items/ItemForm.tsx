@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { UploadDropzone } from "@uploadthing/react";
 import type { OurFileRouter } from "@/lib/uploadthing";
@@ -28,6 +28,20 @@ export default function ItemForm({
 }) {
   const t = useTranslations("itemForm");
   const tCat = useTranslations("categories");
+
+  // Escape key closes, body scroll locked while open
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = "";
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [onClose]);
+
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);

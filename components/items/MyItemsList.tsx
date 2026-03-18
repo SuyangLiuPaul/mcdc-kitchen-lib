@@ -5,6 +5,8 @@ import { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter, useSearchParams } from "next/navigation";
 import ItemForm from "./ItemForm";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { useToast } from "@/components/layout/ToastProvider";
 import { CATEGORY_ICONS, type Category } from "@/lib/categories";
 
 type Item = {
@@ -27,13 +29,18 @@ export default function MyItemsList({
 }) {
   const t = useTranslations("myItems");
   const tCat = useTranslations("categories");
+  const tCommon = useTranslations("common");
+  const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
+
   const [showForm, setShowForm] = useState(false);
   const [editItem, setEditItem] = useState<Item | null>(null);
+  const [deleteId, setDeleteId] = useState<string | null>(null);
+  // Track optimistic statuses: id → "AVAILABLE" | "BORROWED"
+  const [optimisticStatuses, setOptimisticStatuses] = useState<Record<string, string>>({});
   const [togglingId, setTogglingId] = useState<string | null>(null);
 
-  // Auto-open add form when ?add=1 is in the URL (from Navbar)
   useEffect(() => {
     if (searchParams.get("add") === "1") {
       setEditItem(null);
@@ -45,16 +52,32 @@ export default function MyItemsList({
   }, [searchParams, router]);
 
   async function handleDelete(id: string) {
-    if (!confirm(t("deleteConfirm"))) return;
-    await fetch(`/api/items/${id}`, { method: "DELETE" });
-    router.refresh();
+    const res = await fetch(`/api/items/${id}`, { method: "DELETE" });
+    if (res.ok) {
+      toast(t("deleteSuccess"), "success");
+      router.refresh();
+    } else {
+      toast(tCommon("error"), "error");
+    }
+    setDeleteId(null);
   }
 
-  async function handleToggleStatus(id: string) {
+  async function handleToggleStatus(id: string, currentStatus: string) {
+    const newStatus = currentStatus === "AVAILABLE" ? "BORROWED" : "AVAILABLE";
+    // Optimistic update
+    setOptimisticStatuses((prev) => ({ ...prev, [id]: newStatus }));
     setTogglingId(id);
-    await fetch(`/api/items/${id}`, { method: "PATCH" });
+
+    const res = await fetch(`/api/items/${id}`, { method: "PATCH" });
+    if (res.ok) {
+      toast(t("statusUpdated"), "success");
+      router.refresh();
+    } else {
+      // Revert
+      setOptimisticStatuses((prev) => ({ ...prev, [id]: currentStatus }));
+      toast(tCommon("error"), "error");
+    }
     setTogglingId(null);
-    router.refresh();
   }
 
   function openAddForm() {
@@ -88,11 +111,10 @@ export default function MyItemsList({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {items.map((item) => {
             const title = locale === "zh" && item.titleZh ? item.titleZh : item.title;
-            const categoryLabel = item.category
-              ? tCat(item.category as Category)
-              : null;
+            const categoryLabel = item.category ? tCat(item.category as Category) : null;
             const categoryIcon = item.category ? CATEGORY_ICONS[item.category] : null;
-            const isAvailable = item.status === "AVAILABLE";
+            const status = optimisticStatuses[item.id] ?? item.status;
+            const isAvailable = status === "AVAILABLE";
             const isToggling = togglingId === item.id;
 
             return (
@@ -100,7 +122,6 @@ export default function MyItemsList({
                 key={item.id}
                 className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm hover:shadow-md transition-shadow"
               >
-                {/* Image */}
                 <div className="relative w-full h-40 bg-gray-100">
                   {item.imageUrls[0] ? (
                     <Image src={item.imageUrls[0]} alt={title} fill className="object-cover" />
@@ -109,9 +130,8 @@ export default function MyItemsList({
                       {categoryIcon ?? "📦"}
                     </div>
                   )}
-                  {/* Status badge */}
                   <span
-                    className={`absolute top-2 left-2 text-xs px-2 py-0.5 rounded-full font-semibold ${
+                    className={`absolute top-2 left-2 text-xs px-2 py-0.5 rounded-full font-semibold transition-colors ${
                       isAvailable
                         ? "bg-emerald-100 text-emerald-700"
                         : "bg-amber-100 text-amber-700"
@@ -119,7 +139,6 @@ export default function MyItemsList({
                   >
                     {isAvailable ? t("statusAvailable") : t("statusBorrowed")}
                   </span>
-                  {/* Photo count badge */}
                   {item.imageUrls.length > 1 && (
                     <span className="absolute top-2 right-2 text-xs bg-black/50 text-white px-1.5 py-0.5 rounded font-medium">
                       📷 {item.imageUrls.length}
@@ -135,9 +154,8 @@ export default function MyItemsList({
                     </span>
                   )}
 
-                  {/* Quick status toggle */}
                   <button
-                    onClick={() => handleToggleStatus(item.id)}
+                    onClick={() => handleToggleStatus(item.id, status)}
                     disabled={isToggling}
                     className={`w-full mt-3 text-xs py-1.5 rounded-lg font-medium border transition-colors disabled:opacity-50 ${
                       isAvailable
@@ -145,11 +163,7 @@ export default function MyItemsList({
                         : "border-emerald-200 text-emerald-700 hover:bg-emerald-50"
                     }`}
                   >
-                    {isToggling
-                      ? "..."
-                      : isAvailable
-                      ? t("markBorrowed")
-                      : t("markAvailable")}
+                    {isToggling ? "···" : isAvailable ? t("markBorrowed") : t("markAvailable")}
                   </button>
 
                   <div className="flex gap-2 mt-2">
@@ -160,7 +174,7 @@ export default function MyItemsList({
                       {t("editItem")}
                     </button>
                     <button
-                      onClick={() => handleDelete(item.id)}
+                      onClick={() => setDeleteId(item.id)}
                       className="flex-1 text-sm border border-red-200 text-red-600 rounded-lg py-1.5 hover:bg-red-50 transition-colors"
                     >
                       {t("deleteItem")}
@@ -173,11 +187,27 @@ export default function MyItemsList({
         </div>
       )}
 
+      {/* Confirm delete dialog */}
+      {deleteId && (
+        <ConfirmDialog
+          message={t("deleteConfirm")}
+          confirmLabel={t("deleteItem")}
+          cancelLabel={tCommon("cancel")}
+          onConfirm={() => handleDelete(deleteId)}
+          onCancel={() => setDeleteId(null)}
+        />
+      )}
+
+      {/* Add/edit form */}
       {showForm && (
         <ItemForm
           item={editItem}
           onClose={() => setShowForm(false)}
-          onSaved={() => { setShowForm(false); router.refresh(); }}
+          onSaved={() => {
+            setShowForm(false);
+            toast(editItem ? t("editSuccess") : t("addSuccess"), "success");
+            router.refresh();
+          }}
         />
       )}
     </>

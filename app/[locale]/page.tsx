@@ -31,13 +31,15 @@ export default async function HomePage({
     orderBy: { createdAt: "desc" },
   });
 
+  const hasFilters = !!(search || (category && category !== "all"));
+
   return (
     <div>
       <HomeHeader />
       <div className="max-w-7xl mx-auto px-6 py-8">
         <ItemFilters total={items.length} />
         {items.length === 0 ? (
-          <EmptyState />
+          <EmptyState hasFilters={hasFilters} />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
             {items.map((item: Parameters<typeof ItemCard>[0]["item"]) => (
@@ -64,12 +66,14 @@ function HomeHeader() {
   );
 }
 
-function EmptyState() {
+function EmptyState({ hasFilters }: { hasFilters: boolean }) {
   const t = useTranslations("home");
   return (
     <div className="text-center py-24">
-      <div className="text-6xl mb-4">📦</div>
-      <p className="text-gray-400 text-lg">{t("noItems")}</p>
+      <div className="text-6xl mb-4">{hasFilters ? "🔍" : "📦"}</div>
+      <p className="text-gray-400 text-lg">
+        {hasFilters ? t("noResults") : t("noItems")}
+      </p>
     </div>
   );
 }

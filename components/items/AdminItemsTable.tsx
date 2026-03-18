@@ -1,7 +1,11 @@
 "use client";
 
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
+import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import { useToast } from "@/components/layout/ToastProvider";
+import { CATEGORY_ICONS, type Category } from "@/lib/categories";
 
 type Item = {
   id: string;
@@ -30,20 +34,31 @@ export default function AdminItemsTable({
 }) {
   const t = useTranslations("admin");
   const tCat = useTranslations("categories");
+  const tCommon = useTranslations("common");
+  const { toast } = useToast();
   const router = useRouter();
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  async function deleteItem(id: string) {
-    if (!confirm(t("deleteConfirm"))) return;
-    await fetch(`/api/items/${id}`, { method: "DELETE" });
-    router.refresh();
+  async function confirmDelete(id: string) {
+    const res = await fetch(`/api/items/${id}`, { method: "DELETE" });
+    if (res.ok) {
+      toast(t("deleteSuccess"), "success");
+      router.refresh();
+    } else {
+      toast(tCommon("error"), "error");
+    }
+    setDeleteId(null);
   }
 
   return (
     <div className="space-y-10">
       <section>
-        <h2 className="text-xl font-semibold mb-4">{t("allItems")}</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border border-gray-200 rounded-xl overflow-hidden">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">{t("allItems")}</h2>
+          <span className="text-sm text-gray-400 font-medium">{items.length} {t("totalItems")}</span>
+        </div>
+        <div className="overflow-x-auto rounded-xl border border-gray-200">
+          <table className="w-full text-sm">
             <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
               <tr>
                 <th className="px-4 py-3 text-left">{t("colTitle")}</th>
@@ -55,18 +70,17 @@ export default function AdminItemsTable({
             </thead>
             <tbody className="divide-y divide-gray-100">
               {items.map((item) => {
-                const title =
-                  locale === "zh" && item.titleZh ? item.titleZh : item.title;
+                const title = locale === "zh" && item.titleZh ? item.titleZh : item.title;
                 const categoryLabel = item.category
-                  ? tCat(item.category as "Kitchen" | "Cleaning" | "Tools" | "Other")
+                  ? `${CATEGORY_ICONS[item.category]} ${tCat(item.category as Category)}`
                   : "—";
                 return (
                   <tr key={item.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3 font-medium">{title}</td>
-                    <td className="px-4 py-3 text-gray-500">{categoryLabel}</td>
+                    <td className="px-4 py-3 font-medium max-w-[180px] truncate">{title}</td>
+                    <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{categoryLabel}</td>
                     <td className="px-4 py-3">
                       <span
-                        className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                        className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
                           item.status === "AVAILABLE"
                             ? "bg-emerald-100 text-emerald-700"
                             : "bg-amber-100 text-amber-700"
@@ -75,12 +89,12 @@ export default function AdminItemsTable({
                         {item.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-gray-500">
+                    <td className="px-4 py-3 text-gray-500 max-w-[140px] truncate">
                       {item.owner.name}
                     </td>
                     <td className="px-4 py-3">
                       <button
-                        onClick={() => deleteItem(item.id)}
+                        onClick={() => setDeleteId(item.id)}
                         className="text-red-600 hover:text-red-800 text-xs font-medium hover:underline"
                       >
                         {t("deleteItem")}
@@ -95,9 +109,12 @@ export default function AdminItemsTable({
       </section>
 
       <section>
-        <h2 className="text-xl font-semibold mb-4">{t("allUsers")}</h2>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm border border-gray-200 rounded-xl overflow-hidden">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-xl font-semibold">{t("allUsers")}</h2>
+          <span className="text-sm text-gray-400 font-medium">{users.length} {t("totalUsers")}</span>
+        </div>
+        <div className="overflow-x-auto rounded-xl border border-gray-200">
+          <table className="w-full text-sm">
             <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
               <tr>
                 <th className="px-4 py-3 text-left">{t("colName")}</th>
@@ -112,7 +129,7 @@ export default function AdminItemsTable({
                   <td className="px-4 py-3 text-gray-500">{user.email}</td>
                   <td className="px-4 py-3">
                     <span
-                      className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                      className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
                         user.role === "ADMIN"
                           ? "bg-purple-100 text-purple-700"
                           : "bg-gray-100 text-gray-600"
@@ -127,6 +144,16 @@ export default function AdminItemsTable({
           </table>
         </div>
       </section>
+
+      {deleteId && (
+        <ConfirmDialog
+          message={t("deleteConfirm")}
+          confirmLabel={t("deleteItem")}
+          cancelLabel={tCommon("cancel")}
+          onConfirm={() => confirmDelete(deleteId)}
+          onCancel={() => setDeleteId(null)}
+        />
+      )}
     </div>
   );
 }
