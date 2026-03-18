@@ -6,42 +6,32 @@
     "login": "Login with Google",
     "addItem": "Add Item",
     "logout": "Logout",
-    "appName": "GraceShare"
+    "appName": "GraceShare",
+    "signingOut": "Signing out...",
+    "redirecting": "Redirecting..."
   },
   "home": {
     "title": "GraceShare",
     "heroPill": "Community Lending",
     "tagline": "Borrow what you need. Share what you have.",
-    "subtitle": "Borrow and share household appliances within the community.",
     "about": "GraceShare is a community lending platform where neighbours share what they have and borrow what they need — reducing waste, saving money, and passing on God's abundance to one another.",
     "howItWorks": "How it works",
     "step1": "Browse items your neighbours are lending",
     "step2": "Contact the owner to arrange pickup",
     "step3": "Return it when you're done — and share your own!",
     "searchPlaceholder": "Search items...",
-    "allCategories": "All Categories",
     "noItems": "No items listed yet. Be the first to share!",
     "noResults": "No items match your search. Try different keywords.",
     "itemCount": "{count, plural, =0 {No items} one {# item} other {# items}} available",
-    "clearFilters": "Clear filters",
-    "available": "Available",
-    "borrowed": "Borrowed"
-  },
-  "categories": {
-    "Kitchen": "Kitchen",
-    "Cleaning": "Cleaning",
-    "Tools": "Tools",
-    "Other": "Other"
+    "clearFilters": "Clear filters"
   },
   "item": {
     "owner": "Owner",
-    "category": "Category",
     "status": "Status",
     "description": "Description",
     "contactOwner": "Contact Owner",
     "available": "Available",
     "borrowed": "Borrowed",
-    "addedOn": "Added on",
     "backToList": "← Back to Browse",
     "copy": "Copy",
     "copied": "Copied!"
@@ -70,18 +60,14 @@
     "titleZh": "Title (Chinese)",
     "descriptionEn": "Description (English)",
     "descriptionZh": "Description (Chinese)",
-    "category": "Category",
     "status": "Status",
     "image": "Item Photos",
     "imageHint": "Upload a clear photo of the item.",
     "save": "Save Item",
     "cancel": "Cancel",
-    "adding": "Adding...",
     "saving": "Saving...",
     "editItem": "Edit Item",
     "addItem": "Add New Item",
-    "photoReady": "✓ Photo ready",
-    "removePhoto": "Remove",
     "statusAvailable": "Available",
     "statusBorrowed": "Borrowed",
     "mainPhoto": "Main",
@@ -98,10 +84,9 @@
     "editItem": "Edit",
     "editSuccess": "Item updated.",
     "deleteSuccess": "Item deleted.",
-    "banUser": "Ban User",
     "deleteConfirm": "Are you sure you want to delete this item? This cannot be undone.",
     "colTitle": "Title",
-    "colCategory": "Category",
+    "colDescription": "Description",
     "colStatus": "Status",
     "colOwner": "Owner",
     "colActions": "Actions",
@@ -131,12 +116,7 @@
     "generate": "Generate",
     "regenerate": "Regenerate",
     "generating": "Generating…",
-    "log": "Log",
-    "colDescription": "Description"
-  },
-  "auth": {
-    "signInRequired": "Please sign in to access this page.",
-    "signIn": "Sign In"
+    "log": "Log"
   },
   "footer": {
     "tagline": "Share the love, save the earth.",

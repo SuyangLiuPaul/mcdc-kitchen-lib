@@ -88,7 +88,7 @@ export default function Navbar() {
             {signingOut ? (
               <Loader2 size={13} className="animate-spin" />
             ) : null}
-            {signingOut ? (locale === "zh" ? "退出中..." : "Signing out...") : t("logout")}
+            {signingOut ? t("signingOut") : t("logout")}
           </button>
         </div>
       );
@@ -107,9 +107,7 @@ export default function Navbar() {
         {signingIn ? (
           <Loader2 size={14} className="animate-spin" />
         ) : null}
-        {signingIn
-          ? (locale === "zh" ? "跳转中..." : "Redirecting...")
-          : t("login")}
+        {signingIn ? t("redirecting") : t("login")}
       </button>
     );
   }

@@ -6,42 +6,32 @@
     "login": "使用谷歌账号登录",
     "addItem": "添加物品",
     "logout": "退出登录",
-    "appName": "恩典流转站"
+    "appName": "恩典流转站",
+    "signingOut": "退出中...",
+    "redirecting": "跳转中..."
   },
   "home": {
     "title": "恩典流转站",
     "heroPill": "社区共享借用平台",
     "tagline": "需要的来借，有余的来分享。",
-    "subtitle": "在社区内借用和分享家用物品。",
     "about": "恩典流转站是一个社区共享平台，让邻里之间互借家用物品，减少浪费，节省资金，共同管理好上帝所赐予我们的丰盛资源。",
     "howItWorks": "如何使用",
     "step1": "浏览邻居正在出借的物品",
     "step2": "联系物主，安排取件时间",
     "step3": "用完归还，也分享你自己的物品！",
     "searchPlaceholder": "搜索物品...",
-    "allCategories": "全部分类",
     "noItems": "暂时还没有物品，快来第一个分享吧！",
     "noResults": "没有找到符合条件的物品，请尝试其他关键词。",
     "itemCount": "共 {count} 件可借用",
-    "clearFilters": "清除筛选",
-    "available": "可借用",
-    "borrowed": "已借出"
-  },
-  "categories": {
-    "Kitchen": "厨房",
-    "Cleaning": "清洁",
-    "Tools": "工具",
-    "Other": "其他"
+    "clearFilters": "清除筛选"
   },
   "item": {
     "owner": "拥有者",
-    "category": "分类",
     "status": "状态",
     "description": "描述",
     "contactOwner": "联系拥有者",
     "available": "可借用",
     "borrowed": "已借出",
-    "addedOn": "添加于",
     "backToList": "← 返回列表",
     "copy": "复制",
     "copied": "已复制！"
@@ -70,18 +60,14 @@
     "titleZh": "标题（中文）",
     "descriptionEn": "描述（英文）",
     "descriptionZh": "描述（中文）",
-    "category": "分类",
     "status": "状态",
     "image": "物品照片",
     "imageHint": "请上传物品的清晰照片。",
     "save": "保存物品",
     "cancel": "取消",
-    "adding": "添加中...",
     "saving": "保存中...",
     "editItem": "编辑物品",
     "addItem": "添加新物品",
-    "photoReady": "✓ 照片已就绪",
-    "removePhoto": "删除",
     "statusAvailable": "可借用",
     "statusBorrowed": "已借出",
     "mainPhoto": "主图",
@@ -98,10 +84,9 @@
     "editItem": "编辑",
     "editSuccess": "物品已更新。",
     "deleteSuccess": "物品已删除。",
-    "banUser": "封禁用户",
     "deleteConfirm": "确定要删除此物品吗？此操作无法撤销。",
     "colTitle": "标题",
-    "colCategory": "分类",
+    "colDescription": "描述",
     "colStatus": "状态",
     "colOwner": "拥有者",
     "colActions": "操作",
@@ -131,12 +116,7 @@
     "generate": "生成",
     "regenerate": "重新生成",
     "generating": "生成中…",
-    "log": "日志",
-    "colDescription": "描述"
-  },
-  "auth": {
-    "signInRequired": "请登录以访问此页面。",
-    "signIn": "登录"
+    "log": "日志"
   },
   "footer": {
     "tagline": "传递爱心，做资源的好管家",
