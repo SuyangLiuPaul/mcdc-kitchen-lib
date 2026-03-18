@@ -116,7 +116,20 @@
     "noActions": "—",
     "deleteUserConfirm": "删除用户 {name} 及其所有物品？此操作无法撤销。",
     "promoteConfirm": "将 {name} 设为管理员？他们将拥有管理面板的完整访问权限。",
-    "demoteConfirm": "取消 {name} 的管理员权限？"
+    "demoteConfirm": "取消 {name} 的管理员权限？",
+    "aiDescriptions": "AI 描述生成",
+    "allDescriptionsDone": "所有物品均已有描述。",
+    "missingDescriptions": "{count} 件物品缺少描述",
+    "generateAllMissing": "批量生成缺失描述",
+    "generatingAll": "批量生成中…",
+    "descriptionGenerated": "描述生成成功！",
+    "descriptionFailed": "描述生成失败，请稍后重试。",
+    "descriptionsBulkDone": "条描述已生成。",
+    "generate": "生成",
+    "regenerate": "重新生成",
+    "generating": "生成中…",
+    "log": "日志",
+    "colDescription": "描述"
   },
   "auth": {
     "signInRequired": "请登录以访问此页面。",

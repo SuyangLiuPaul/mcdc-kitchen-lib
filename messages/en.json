@@ -116,7 +116,20 @@
     "noActions": "—",
     "deleteUserConfirm": "Delete user {name} and all their items? This cannot be undone.",
     "promoteConfirm": "Make {name} an admin? They will have full access to the admin panel.",
-    "demoteConfirm": "Remove admin role from {name}?"
+    "demoteConfirm": "Remove admin role from {name}?",
+    "aiDescriptions": "AI Descriptions",
+    "allDescriptionsDone": "All items have descriptions.",
+    "missingDescriptions": "{count} item(s) missing a description",
+    "generateAllMissing": "Generate All Missing",
+    "generatingAll": "Generating all…",
+    "descriptionGenerated": "Description generated!",
+    "descriptionFailed": "Description failed. Try again later.",
+    "descriptionsBulkDone": "descriptions generated.",
+    "generate": "Generate",
+    "regenerate": "Regenerate",
+    "generating": "Generating…",
+    "log": "Log",
+    "colDescription": "Description"
   },
   "auth": {
     "signInRequired": "Please sign in to access this page.",
