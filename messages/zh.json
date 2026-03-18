@@ -1,0 +1,69 @@
+{
+  "nav": {
+    "home": "首页",
+    "myItems": "我的物品",
+    "admin": "管理面板",
+    "login": "使用谷歌账号登录",
+    "logout": "退出登录",
+    "appName": "MCDC 厨房图书馆"
+  },
+  "home": {
+    "title": "厨房图书馆",
+    "subtitle": "在MCDC社区内借用和分享家用电器。",
+    "searchPlaceholder": "搜索物品...",
+    "allCategories": "全部分类",
+    "noItems": "暂无物品。",
+    "available": "可借用",
+    "borrowed": "已借出"
+  },
+  "categories": {
+    "Kitchen": "厨房",
+    "Cleaning": "清洁",
+    "Tools": "工具",
+    "Other": "其他"
+  },
+  "item": {
+    "owner": "拥有者",
+    "category": "分类",
+    "status": "状态",
+    "description": "描述",
+    "contactOwner": "联系拥有者",
+    "available": "可借用",
+    "borrowed": "已借出",
+    "addedOn": "添加于"
+  },
+  "myItems": {
+    "title": "我的物品",
+    "subtitle": "管理您与社区共享的所有物品。",
+    "addItem": "添加新物品",
+    "editItem": "编辑",
+    "deleteItem": "删除",
+    "noItems": "您还没有分享任何物品。",
+    "deleteConfirm": "确定要删除此物品吗？"
+  },
+  "itemForm": {
+    "titleEn": "标题（英文）",
+    "titleZh": "标题（中文）",
+    "descriptionEn": "描述（英文）",
+    "descriptionZh": "描述（中文）",
+    "category": "分类",
+    "status": "状态",
+    "image": "物品照片",
+    "imageHint": "请上传物品的清晰照片。",
+    "save": "保存物品",
+    "cancel": "取消",
+    "adding": "添加中...",
+    "saving": "保存中..."
+  },
+  "admin": {
+    "title": "管理面板",
+    "allItems": "所有物品",
+    "allUsers": "所有用户",
+    "deleteItem": "删除",
+    "banUser": "封禁用户"
+  },
+  "auth": {
+    "signInRequired": "请登录以访问此页面。",
+    "signIn": "登录"
+  }
+}

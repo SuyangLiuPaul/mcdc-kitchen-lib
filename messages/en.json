@@ -1,0 +1,69 @@
+{
+  "nav": {
+    "home": "Home",
+    "myItems": "My Items",
+    "admin": "Admin Dashboard",
+    "login": "Login with Google",
+    "logout": "Logout",
+    "appName": "MCDC Kitchen Library"
+  },
+  "home": {
+    "title": "Kitchen Library",
+    "subtitle": "Borrow and share household appliances within the MCDC community.",
+    "searchPlaceholder": "Search items...",
+    "allCategories": "All Categories",
+    "noItems": "No items found.",
+    "available": "Available",
+    "borrowed": "Borrowed"
+  },
+  "categories": {
+    "Kitchen": "Kitchen",
+    "Cleaning": "Cleaning",
+    "Tools": "Tools",
+    "Other": "Other"
+  },
+  "item": {
+    "owner": "Owner",
+    "category": "Category",
+    "status": "Status",
+    "description": "Description",
+    "contactOwner": "Contact Owner",
+    "available": "Available",
+    "borrowed": "Borrowed",
+    "addedOn": "Added on"
+  },
+  "myItems": {
+    "title": "My Items",
+    "subtitle": "Manage everything you are sharing with the community.",
+    "addItem": "Add New Item",
+    "editItem": "Edit",
+    "deleteItem": "Delete",
+    "noItems": "You haven't shared any items yet.",
+    "deleteConfirm": "Are you sure you want to delete this item?"
+  },
+  "itemForm": {
+    "titleEn": "Title (English)",
+    "titleZh": "Title (Chinese)",
+    "descriptionEn": "Description (English)",
+    "descriptionZh": "Description (Chinese)",
+    "category": "Category",
+    "status": "Status",
+    "image": "Item Photo",
+    "imageHint": "Upload a clear photo of the item.",
+    "save": "Save Item",
+    "cancel": "Cancel",
+    "adding": "Adding...",
+    "saving": "Saving..."
+  },
+  "admin": {
+    "title": "Admin Dashboard",
+    "allItems": "All Items",
+    "allUsers": "All Users",
+    "deleteItem": "Delete",
+    "banUser": "Ban User"
+  },
+  "auth": {
+    "signInRequired": "Please sign in to access this page.",
+    "signIn": "Sign In"
+  }
+}
