@@ -78,7 +78,8 @@
     "mainPhoto": "主图",
     "uploading": "上传中...",
     "dontLeave": "请勿关闭此窗口",
-    "choosePhotos": "选择照片或点击此处"
+    "choosePhotos": "选择照片或点击此处",
+    "photoRequired": "请至少上传一张照片。"
   },
   "admin": {
     "title": "管理面板",

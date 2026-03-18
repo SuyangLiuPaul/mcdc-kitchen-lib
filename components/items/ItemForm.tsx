@@ -106,6 +106,10 @@ export default function ItemForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (imageUrls.length === 0) {
+      setError(t("photoRequired"));
+      return;
+    }
     setError(null);
     setSaving(true);
     try {
@@ -252,7 +256,7 @@ export default function ItemForm({
           {/* Photo upload */}
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-2">
-              {t("image")}{" "}
+              {t("image")} <span className="text-red-500">*</span>{" "}
               <span className="text-gray-400 font-normal">
                 ({imageUrls.length}/4)
               </span>

@@ -78,7 +78,8 @@
     "mainPhoto": "Main",
     "uploading": "Uploading...",
     "dontLeave": "please don't close this window",
-    "choosePhotos": "Choose photos or tap here"
+    "choosePhotos": "Choose photos or tap here",
+    "photoRequired": "Please upload at least one photo."
   },
   "admin": {
     "title": "Admin Dashboard",
