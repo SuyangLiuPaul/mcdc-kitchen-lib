@@ -84,7 +84,8 @@ export default function AdminItemsTable({
         toast(t("descriptionGenerated"), "success");
         router.refresh();
       } else {
-        addLog(`✗ Quota or error — "${title}". Try again later.`, "error");
+        const reason = data.error ? `: ${data.error}` : "";
+        addLog(`✗ Failed — "${title}"${reason}`, "error");
         toast(t("descriptionFailed"), "error");
       }
     } catch {

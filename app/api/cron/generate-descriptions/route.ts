@@ -30,16 +30,17 @@ export async function GET(req: NextRequest) {
   const logs: string[] = [];
 
   for (const item of items) {
-    const desc = await generateItemDescription(item.title);
-    if (desc) {
+    const gemini = await generateItemDescription(item.title);
+    if (gemini?.result) {
       await prisma.item.update({
         where: { id: item.id },
-        data: { description: desc.en, descriptionZh: desc.zh },
+        data: { description: gemini.result.en, descriptionZh: gemini.result.zh },
       });
       generated++;
       logs.push(`✓ "${item.title}"`);
     } else {
-      logs.push(`✗ "${item.title}" — quota or error, will retry next run`);
+      const reason = gemini?.error ?? "timeout or network error";
+      logs.push(`✗ "${item.title}" — ${reason} (will retry next run)`);
     }
     await new Promise((r) => setTimeout(r, 600));
   }

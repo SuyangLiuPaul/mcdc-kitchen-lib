@@ -25,14 +25,14 @@ export async function POST(request: Request) {
   }
 
   // Generate bilingual description via Gemini (silent fail — never blocks save)
-  const generated = await generateItemDescription(title);
+  const gemini = await generateItemDescription(title);
 
   const item = await prisma.item.create({
     data: {
       title,
       titleZh: titleZh || null,
-      description: generated?.en || null,
-      descriptionZh: generated?.zh || null,
+      description: gemini?.result?.en || null,
+      descriptionZh: gemini?.result?.zh || null,
       imageUrls: Array.isArray(imageUrls) ? imageUrls : [],
       category: category || null,
       status: status || "AVAILABLE",

@@ -48,10 +48,10 @@ export async function PUT(
   let finalDescription = item.description;
   let finalDescriptionZh = item.descriptionZh;
   if (!item.description) {
-    const generated = await generateItemDescription(finalTitle);
-    if (generated) {
-      finalDescription = generated.en;
-      finalDescriptionZh = generated.zh;
+    const gemini = await generateItemDescription(finalTitle);
+    if (gemini?.result) {
+      finalDescription = gemini.result.en;
+      finalDescriptionZh = gemini.result.zh;
     }
   }
 

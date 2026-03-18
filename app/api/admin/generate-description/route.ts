@@ -26,15 +26,16 @@ export async function POST(req: Request) {
     });
     if (!item) return NextResponse.json({ error: "Not found" }, { status: 404 });
 
-    const generated = await generateItemDescription(item.title);
-    if (generated) {
+    const gemini = await generateItemDescription(item.title);
+    if (gemini?.result) {
       await prisma.item.update({
         where: { id: item.id },
-        data: { description: generated.en, descriptionZh: generated.zh },
+        data: { description: gemini.result.en, descriptionZh: gemini.result.zh },
       });
       return NextResponse.json({ success: true, generated: 1, total: 1 });
     }
-    return NextResponse.json({ success: false, generated: 0, total: 1 });
+    const reason = gemini?.error ?? "timeout or network error";
+    return NextResponse.json({ success: false, generated: 0, total: 1, error: reason });
   }
 
   // ── Bulk: all items missing a description ─────────────────────────────────
@@ -48,16 +49,17 @@ export async function POST(req: Request) {
     const logs: string[] = [];
 
     for (const item of items) {
-      const desc = await generateItemDescription(item.title);
-      if (desc) {
+      const gemini = await generateItemDescription(item.title);
+      if (gemini?.result) {
         await prisma.item.update({
           where: { id: item.id },
-          data: { description: desc.en, descriptionZh: desc.zh },
+          data: { description: gemini.result.en, descriptionZh: gemini.result.zh },
         });
         generated++;
         logs.push(`✓ "${item.title}"`);
       } else {
-        logs.push(`✗ "${item.title}" — quota or error`);
+        const reason = gemini?.error ?? "timeout or network error";
+        logs.push(`✗ "${item.title}" — ${reason}`);
       }
       // Small pause to respect Gemini rate limits
       await new Promise((r) => setTimeout(r, 600));

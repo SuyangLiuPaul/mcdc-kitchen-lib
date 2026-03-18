@@ -1,16 +1,19 @@
 const GEMINI_API_URL =
-  "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent";
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
 
 type Description = { en: string; zh: string };
+export type GeminiResult =
+  | { result: Description; error?: never }
+  | { error: string; result?: never }
+  | null;
 
 /**
  * Generate a short bilingual description for a shared item.
- * Returns null silently on quota errors, network failures, or missing key —
- * so the caller can save the item without a description and try again later.
+ * Returns null on timeout/network errors, { error } on API errors, { result } on success.
  */
 export async function generateItemDescription(
   title: string
-): Promise<Description | null> {
+): Promise<GeminiResult> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
 
@@ -35,7 +38,11 @@ Item name: ${title}`;
       signal: AbortSignal.timeout(8000), // 8 s max — don't block the save
     });
 
-    if (!res.ok) return null; // quota, rate-limit, etc — silent fail
+    if (!res.ok) {
+      const errText = await res.text().catch(() => "(unreadable)");
+      console.error(`[gemini] HTTP ${res.status}:`, errText);
+      return { error: `HTTP ${res.status}: ${errText.slice(0, 200)}` };
+    }
 
     const data = await res.json();
     const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
@@ -45,10 +52,11 @@ Item name: ${title}`;
     const parsed: Description = JSON.parse(cleaned);
 
     if (typeof parsed.en === "string" && typeof parsed.zh === "string") {
-      return parsed;
+      return { result: parsed };
     }
     return null;
-  } catch {
+  } catch (err) {
+    console.error("[gemini] exception:", err);
     return null; // timeout, parse error, network — silent fail
   }
 }
