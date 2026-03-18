@@ -13,7 +13,7 @@ type Item = {
   titleZh: string | null;
   description: string | null;
   descriptionZh: string | null;
-  imageUrl: string | null;
+  imageUrls: string[];
   category: string | null;
   status: string;
 };
@@ -28,9 +28,10 @@ export default function ItemForm({
   onSaved: () => void;
 }) {
   const t = useTranslations("itemForm");
+  const tCat = useTranslations("categories");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [imageUrl, setImageUrl] = useState(item?.imageUrl ?? "");
+  const [imageUrls, setImageUrls] = useState<string[]>(item?.imageUrls ?? []);
   const [formData, setFormData] = useState({
     title: item?.title ?? "",
     titleZh: item?.titleZh ?? "",
@@ -46,10 +47,14 @@ export default function ItemForm({
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
+  function removeImage(index: number) {
+    setImageUrls((prev) => prev.filter((_, i) => i !== index));
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setSaving(true);
-    const body = { ...formData, imageUrl };
+    const body = { ...formData, imageUrls };
     const url = item ? `/api/items/${item.id}` : "/api/items";
     const method = item ? "PUT" : "POST";
     await fetch(url, {
@@ -60,6 +65,8 @@ export default function ItemForm({
     setSaving(false);
     onSaved();
   }
+
+  const canUploadMore = imageUrls.length < 4;
 
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
@@ -134,7 +141,7 @@ export default function ItemForm({
               >
                 {CATEGORIES.map((c) => (
                   <option key={c} value={c}>
-                    {c}
+                    {tCat(c as "Kitchen" | "Cleaning" | "Tools" | "Other")}
                   </option>
                 ))}
               </select>
@@ -158,46 +165,86 @@ export default function ItemForm({
           {/* Photo upload */}
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-2">
-              {t("image")} <span className="text-gray-400 font-normal">(optional)</span>
+              {t("image")}{" "}
+              <span className="text-gray-400 font-normal">
+                ({imageUrls.length}/4)
+              </span>
             </label>
 
-            {imageUrl ? (
-              /* Preview after upload */
-              <div className="rounded-xl overflow-hidden border border-gray-200">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={imageUrl}
-                  alt="Preview"
-                  className="w-full h-44 object-cover"
-                />
-                <div className="flex items-center justify-between px-3 py-2 bg-gray-50">
-                  <span className="text-xs text-emerald-600 font-medium">{t("photoReady")}</span>
-                  <button
-                    type="button"
-                    onClick={() => setImageUrl("")}
-                    className="text-xs text-red-500 hover:text-red-700"
-                  >
-                    {t("removePhoto")}
-                  </button>
-                </div>
+            {/* Uploaded image previews */}
+            {imageUrls.length > 0 && (
+              <div className="grid grid-cols-2 gap-2 mb-3">
+                {imageUrls.map((url, i) => (
+                  <div key={url} className="relative rounded-lg overflow-hidden border border-gray-200 aspect-video">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src={url} alt={`Photo ${i + 1}`} className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => removeImage(i)}
+                      className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs leading-none transition-colors"
+                      aria-label="Remove photo"
+                    >
+                      ×
+                    </button>
+                    {i === 0 && (
+                      <span className="absolute bottom-1 left-1 bg-black/50 text-white text-[10px] px-1.5 py-0.5 rounded font-medium">
+                        {t("mainPhoto")}
+                      </span>
+                    )}
+                  </div>
+                ))}
               </div>
-            ) : (
-              <UploadDropzone<OurFileRouter, "itemImage">
-                endpoint="itemImage"
-                onUploadBegin={() => setUploading(true)}
-                onClientUploadComplete={(res) => {
-                  setUploading(false);
-                  const uploaded = res?.[0];
-                  const url = uploaded?.ufsUrl ?? uploaded?.url;
-                  if (url) setImageUrl(url);
-                }}
-                onUploadError={(error) => {
-                  setUploading(false);
-                  console.error("Upload error:", error);
-                  alert("Upload failed: " + error.message);
-                }}
-                className="ut-label:text-sm ut-label:font-medium ut-label:text-gray-700 ut-allowed-content:text-xs ut-allowed-content:text-gray-400 ut-button:bg-indigo-600 ut-button:hover:bg-indigo-700 border-2 border-dashed border-gray-300 rounded-xl"
-              />
+            )}
+
+            {/* Upload dropzone — only shown when under the 4-photo limit */}
+            {canUploadMore && (
+              <div className="relative">
+                <UploadDropzone<OurFileRouter, "itemImage">
+                  endpoint="itemImage"
+                  onUploadBegin={() => setUploading(true)}
+                  onClientUploadComplete={(res) => {
+                    setUploading(false);
+                    const newUrls = res
+                      .map((f) => f.ufsUrl ?? f.url)
+                      .filter(Boolean) as string[];
+                    setImageUrls((prev) => [...prev, ...newUrls].slice(0, 4));
+                  }}
+                  onUploadError={(error) => {
+                    setUploading(false);
+                    alert("Upload failed: " + error.message);
+                  }}
+                  className="ut-label:text-sm ut-label:font-medium ut-label:text-gray-700 ut-allowed-content:text-xs ut-allowed-content:text-gray-400 ut-button:bg-indigo-600 ut-button:hover:bg-indigo-700 border-2 border-dashed border-gray-300 rounded-xl"
+                />
+
+                {/* Loading overlay */}
+                {uploading && (
+                  <div className="absolute inset-0 bg-white/80 rounded-xl flex flex-col items-center justify-center gap-2 z-10">
+                    <svg
+                      className="animate-spin h-8 w-8 text-indigo-600"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                      />
+                    </svg>
+                    <span className="text-sm text-indigo-700 font-medium">
+                      {t("uploading")}
+                    </span>
+                  </div>
+                )}
+              </div>
             )}
           </div>
 
@@ -205,14 +252,14 @@ export default function ItemForm({
             <button
               type="submit"
               disabled={saving || uploading}
-              className="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50"
+              className="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors"
             >
               {saving ? t("saving") : t("save")}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 border border-gray-300 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50"
+              className="flex-1 border border-gray-300 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
             >
               {t("cancel")}
             </button>

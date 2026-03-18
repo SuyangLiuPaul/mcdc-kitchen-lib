@@ -64,7 +64,7 @@ model Item {
   titleZh     String?
   description String?
   descriptionZh String?
-  imageUrl    String?  // URL from UploadThing
+  imageUrls   String[] // URLs from UploadThing (up to 4)
   category    String?
   status      String   @default("AVAILABLE") // AVAILABLE, BORROWED
   createdAt   DateTime @default(now())

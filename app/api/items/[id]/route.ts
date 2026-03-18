@@ -31,7 +31,7 @@ export async function PUT(
   if (!allowed) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await request.json();
-  const { title, titleZh, description, descriptionZh, imageUrl, category, status } = body;
+  const { title, titleZh, description, descriptionZh, imageUrls, category, status } = body;
 
   const updated = await prisma.item.update({
     where: { id },
@@ -40,7 +40,7 @@ export async function PUT(
       titleZh: titleZh ?? item.titleZh,
       description: description ?? item.description,
       descriptionZh: descriptionZh ?? item.descriptionZh,
-      imageUrl: imageUrl ?? item.imageUrl,
+      imageUrls: Array.isArray(imageUrls) ? imageUrls : item.imageUrls,
       category: category ?? item.category,
       status: status ?? item.status,
     },

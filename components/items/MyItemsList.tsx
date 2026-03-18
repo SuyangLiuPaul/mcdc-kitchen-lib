@@ -12,7 +12,7 @@ type Item = {
   titleZh: string | null;
   description: string | null;
   descriptionZh: string | null;
-  imageUrl: string | null;
+  imageUrls: string[];
   category: string | null;
   status: string;
 };
@@ -89,8 +89,8 @@ export default function MyItemsList({
                 className="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-sm"
               >
                 <div className="relative w-full h-40 bg-gray-100">
-                  {item.imageUrl ? (
-                    <Image src={item.imageUrl} alt={title} fill className="object-cover" />
+                  {item.imageUrls[0] ? (
+                    <Image src={item.imageUrls[0]} alt={title} fill className="object-cover" />
                   ) : (
                     <div className="flex items-center justify-center h-full text-gray-300 text-4xl">📦</div>
                   )}

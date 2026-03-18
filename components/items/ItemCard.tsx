@@ -6,7 +6,7 @@ type ItemWithOwner = {
   id: string;
   title: string;
   titleZh: string | null;
-  imageUrl: string | null;
+  imageUrls: string[];
   status: string;
   category: string | null;
   owner: { name: string | null; image: string | null };
@@ -32,9 +32,9 @@ export default function ItemCard({
       className="group block bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200"
     >
       <div className="relative w-full h-52 bg-gray-100">
-        {item.imageUrl ? (
+        {item.imageUrls[0] ? (
           <Image
-            src={item.imageUrl}
+            src={item.imageUrls[0]}
             alt={title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-300"

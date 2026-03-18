@@ -39,14 +39,32 @@ export default async function ItemDetailPage({
       >
         {t("backToList")}
       </Link>
-      {item.imageUrl && (
-        <div className="relative w-full h-80 rounded-xl overflow-hidden mb-6">
-          <Image
-            src={item.imageUrl}
-            alt={title}
-            fill
-            className="object-cover"
-          />
+      {item.imageUrls.length > 0 && (
+        <div className="mb-6 space-y-2">
+          {/* Main image */}
+          <div className="relative w-full h-80 rounded-xl overflow-hidden">
+            <Image
+              src={item.imageUrls[0]}
+              alt={title}
+              fill
+              className="object-cover"
+            />
+          </div>
+          {/* Thumbnail strip */}
+          {item.imageUrls.length > 1 && (
+            <div className="grid grid-cols-3 gap-2">
+              {item.imageUrls.slice(1).map((url, i) => (
+                <div key={url} className="relative h-24 rounded-lg overflow-hidden">
+                  <Image
+                    src={url}
+                    alt={`${title} photo ${i + 2}`}
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

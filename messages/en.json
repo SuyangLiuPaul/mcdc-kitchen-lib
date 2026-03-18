@@ -61,7 +61,9 @@
     "photoReady": "✓ Photo ready",
     "removePhoto": "Remove & re-upload",
     "statusAvailable": "Available",
-    "statusBorrowed": "Borrowed"
+    "statusBorrowed": "Borrowed",
+    "mainPhoto": "Main",
+    "uploading": "Uploading..."
   },
   "admin": {
     "title": "Admin Dashboard",

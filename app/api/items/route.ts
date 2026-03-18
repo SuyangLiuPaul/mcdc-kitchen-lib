@@ -9,7 +9,7 @@ export async function POST(request: Request) {
   }
 
   const body = await request.json();
-  const { title, titleZh, description, descriptionZh, imageUrl, category, status } = body;
+  const { title, titleZh, description, descriptionZh, imageUrls, category, status } = body;
 
   if (!title) {
     return NextResponse.json({ error: "Title is required" }, { status: 400 });
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       titleZh: titleZh || null,
       description: description || null,
       descriptionZh: descriptionZh || null,
-      imageUrl: imageUrl || null,
+      imageUrls: Array.isArray(imageUrls) ? imageUrls : [],
       category: category || null,
       status: status || "AVAILABLE",
       ownerId: session.user.id,
