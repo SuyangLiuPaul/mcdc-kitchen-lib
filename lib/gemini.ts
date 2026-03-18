@@ -47,14 +47,16 @@ Item name: ${title}`;
     const data = await res.json();
     const raw = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
 
-    // Strip markdown code fences if Gemini wraps the JSON
-    const cleaned = raw.replace(/```json|```/g, "").trim();
-    const parsed: Description = JSON.parse(cleaned);
+    // Extract the first JSON object from the response (handles extra text/fences)
+    const jsonMatch = raw.match(/\{[\s\S]*?\}/);
+    if (!jsonMatch) return { error: `No JSON in response: ${raw.slice(0, 100)}` };
+
+    const parsed: Description = JSON.parse(jsonMatch[0]);
 
     if (typeof parsed.en === "string" && typeof parsed.zh === "string") {
       return { result: parsed };
     }
-    return null;
+    return { error: `Unexpected JSON shape: ${jsonMatch[0].slice(0, 100)}` };
   } catch (err) {
     const msg = err instanceof Error ? err.message : String(err);
     console.error("[gemini] exception:", msg);
