@@ -11,19 +11,21 @@ import { Menu, X, Loader2 } from "lucide-react";
 export default function Navbar() {
   const t = useTranslations("nav");
   const locale = useLocale();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const pathname = usePathname();
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
   const [signingIn, setSigningIn] = useState(false);
   const [signingOut, setSigningOut] = useState(false);
+  const [switchingLocale, setSwitchingLocale] = useState(false);
 
+  const isSessionLoading = status === "loading";
   const otherLocale = locale === "en" ? "zh" : "en";
   const otherLocaleLabel = locale === "en" ? "中文" : "EN";
   const role = session?.user?.role;
 
-  // Replace only the first path segment (the locale)
   function switchLocale() {
+    setSwitchingLocale(true);
     const segments = pathname.split("/");
     segments[1] = otherLocale;
     router.push(segments.join("/"));
@@ -32,8 +34,8 @@ export default function Navbar() {
 
   async function handleSignIn() {
     setSigningIn(true);
-    await signIn("google");
-    setSigningIn(false);
+    await signIn("google", { callbackUrl: `/${locale}` });
+    // page navigates away — no need to reset
   }
 
   async function handleSignOut() {
@@ -47,10 +49,85 @@ export default function Navbar() {
 
   const navLinkClass = (href: string) =>
     `text-sm font-medium transition-colors ${
-      isActive(href)
-        ? "text-indigo-700"
-        : "text-gray-600 hover:text-gray-900"
+      isActive(href) ? "text-indigo-700" : "text-gray-600 hover:text-gray-900"
     }`;
+
+  // Auth section shared between desktop and mobile
+  function AuthButtons({ mobile = false }: { mobile?: boolean }) {
+    if (isSessionLoading) {
+      // Skeleton placeholder to avoid layout flash
+      return (
+        <div className={`flex items-center gap-2 ${mobile ? "w-full" : ""}`}>
+          <div className="h-8 w-24 bg-gray-100 rounded-lg animate-pulse" />
+        </div>
+      );
+    }
+
+    if (session) {
+      return (
+        <div className={`flex items-center gap-3 ${mobile ? "w-full" : ""}`}>
+          {session.user?.image && (
+            <Image
+              src={session.user.image}
+              alt={session.user.name ?? "User"}
+              width={mobile ? 26 : 34}
+              height={mobile ? 26 : 34}
+              className="rounded-full ring-2 ring-indigo-100 shrink-0"
+            />
+          )}
+          {mobile && (
+            <span className="text-sm text-gray-600 truncate flex-1">{session.user?.name}</span>
+          )}
+          <button
+            onClick={handleSignOut}
+            disabled={signingOut}
+            className={`text-sm font-medium transition-all flex items-center gap-1.5 active:scale-95 disabled:opacity-60 ${
+              mobile ? "text-red-500" : "text-gray-500 hover:text-gray-800"
+            }`}
+          >
+            {signingOut ? (
+              <Loader2 size={13} className="animate-spin" />
+            ) : null}
+            {signingOut ? (locale === "zh" ? "退出中..." : "Signing out...") : t("logout")}
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <button
+        onClick={handleSignIn}
+        disabled={signingIn}
+        className={`text-sm font-medium transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-70 ${
+          mobile
+            ? "w-full bg-indigo-600 text-white py-2.5 rounded-lg mt-1"
+            : "bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
+        }`}
+      >
+        {signingIn ? (
+          <Loader2 size={14} className="animate-spin" />
+        ) : null}
+        {signingIn
+          ? (locale === "zh" ? "跳转中..." : "Redirecting...")
+          : t("login")}
+      </button>
+    );
+  }
+
+  function LocaleButton({ mobile = false }: { mobile?: boolean }) {
+    return (
+      <button
+        onClick={switchLocale}
+        disabled={switchingLocale}
+        className={`text-sm font-medium border border-gray-300 rounded-md transition-all active:scale-95 disabled:opacity-60 flex items-center gap-1.5 ${
+          mobile ? "px-3 py-1" : "px-3 py-1.5"
+        } text-gray-600 hover:bg-gray-50`}
+      >
+        {switchingLocale ? <Loader2 size={12} className="animate-spin" /> : null}
+        {switchingLocale ? "..." : otherLocaleLabel}
+      </button>
+    );
+  }
 
   return (
     <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
@@ -58,7 +135,7 @@ export default function Navbar() {
         {/* Logo */}
         <Link
           href={`/${locale}`}
-          className="font-bold text-xl text-indigo-700 hover:text-indigo-900 tracking-tight"
+          className="font-bold text-xl text-indigo-700 hover:text-indigo-900 tracking-tight transition-colors"
           onClick={() => setMenuOpen(false)}
         >
           {t("appName")}
@@ -73,7 +150,7 @@ export default function Navbar() {
               </Link>
               <Link
                 href={`/${locale}/my-items?add=1`}
-                className="text-sm bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 font-medium transition-colors"
+                className="text-sm bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 font-medium transition-all active:scale-95"
               >
                 + {t("addItem")}
               </Link>
@@ -85,48 +162,13 @@ export default function Navbar() {
             </>
           )}
 
-          <button
-            onClick={switchLocale}
-            className="text-sm px-3 py-1.5 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50 font-medium transition-colors"
-          >
-            {otherLocaleLabel}
-          </button>
-
-          {session ? (
-            <div className="flex items-center gap-3">
-              {session.user?.image && (
-                <Image
-                  src={session.user.image}
-                  alt={session.user.name ?? "User"}
-                  width={34}
-                  height={34}
-                  className="rounded-full ring-2 ring-indigo-100"
-                />
-              )}
-              <button
-                onClick={handleSignOut}
-                disabled={signingOut}
-                className="text-sm text-gray-500 hover:text-gray-800 font-medium transition-colors disabled:opacity-60 flex items-center gap-1.5"
-              >
-                {signingOut && <Loader2 size={13} className="animate-spin" />}
-                {t("logout")}
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={handleSignIn}
-              disabled={signingIn}
-              className="text-sm bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 font-medium transition-colors disabled:opacity-70 flex items-center gap-2"
-            >
-              {signingIn && <Loader2 size={14} className="animate-spin" />}
-              {t("login")}
-            </button>
-          )}
+          <LocaleButton />
+          <AuthButtons />
         </div>
 
         {/* Mobile hamburger */}
         <button
-          className="sm:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100 transition-colors"
+          className="sm:hidden p-2 rounded-md text-gray-600 hover:bg-gray-100 transition-colors active:scale-95"
           onClick={() => setMenuOpen((o) => !o)}
           aria-label="Toggle menu"
           aria-expanded={menuOpen}
@@ -144,7 +186,7 @@ export default function Navbar() {
                 <Link
                   href={`/${locale}/my-items`}
                   onClick={() => setMenuOpen(false)}
-                  className={`flex items-center gap-2 py-2 text-sm font-medium ${
+                  className={`flex items-center gap-2 py-2 text-sm font-medium active:opacity-70 ${
                     isActive(`/${locale}/my-items`) ? "text-indigo-700" : "text-gray-700"
                   }`}
                 >
@@ -153,7 +195,7 @@ export default function Navbar() {
                 <Link
                   href={`/${locale}/my-items?add=1`}
                   onClick={() => setMenuOpen(false)}
-                  className="flex items-center gap-2 py-2 text-sm font-medium text-indigo-600"
+                  className="flex items-center gap-2 py-2 text-sm font-medium text-indigo-600 active:opacity-70"
                 >
                   + {t("addItem")}
                 </Link>
@@ -161,7 +203,7 @@ export default function Navbar() {
                   <Link
                     href={`/${locale}/admin`}
                     onClick={() => setMenuOpen(false)}
-                    className={`flex items-center gap-2 py-2 text-sm font-medium ${
+                    className={`flex items-center gap-2 py-2 text-sm font-medium active:opacity-70 ${
                       isActive(`/${locale}/admin`) ? "text-indigo-700" : "text-gray-700"
                     }`}
                   >
@@ -170,49 +212,14 @@ export default function Navbar() {
                 )}
               </>
             ) : (
-              <button
-                onClick={handleSignIn}
-                disabled={signingIn}
-                className="w-full bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-medium mt-1 flex items-center justify-center gap-2 disabled:opacity-70"
-              >
-                {signingIn && <Loader2 size={14} className="animate-spin" />}
-                {t("login")}
-              </button>
+              <AuthButtons mobile />
             )}
           </div>
 
           <div className="px-4 py-3 flex items-center justify-between gap-3">
-            {session && (
-              <div className="flex items-center gap-2 min-w-0">
-                {session.user?.image && (
-                  <Image
-                    src={session.user.image}
-                    alt={session.user.name ?? ""}
-                    width={26}
-                    height={26}
-                    className="rounded-full shrink-0"
-                  />
-                )}
-                <span className="text-sm text-gray-600 truncate">{session.user?.name}</span>
-              </div>
-            )}
+            {session && <AuthButtons mobile />}
             <div className="flex items-center gap-3 ml-auto shrink-0">
-              <button
-                onClick={switchLocale}
-                className="text-sm px-3 py-1 rounded-md border border-gray-300 text-gray-600 font-medium"
-              >
-                {otherLocaleLabel}
-              </button>
-              {session && (
-                <button
-                  onClick={handleSignOut}
-                  disabled={signingOut}
-                  className="text-sm text-red-500 font-medium flex items-center gap-1 disabled:opacity-60"
-                >
-                  {signingOut && <Loader2 size={12} className="animate-spin" />}
-                  {t("logout")}
-                </button>
-              )}
+              <LocaleButton mobile />
             </div>
           </div>
         </div>

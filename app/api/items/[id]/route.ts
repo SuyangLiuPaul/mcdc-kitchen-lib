@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { translateText } from "@/lib/translate";
 
 async function getItemAndCheckAccess(id: string, userId: string) {
   const item = await prisma.item.findUnique({ where: { id } });
@@ -31,15 +32,29 @@ export async function PUT(
   if (!allowed) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   const body = await request.json();
-  const { title, titleZh, description, descriptionZh, imageUrls, category, status } = body;
+  let { title, titleZh, description, descriptionZh, imageUrls, category, status } = body;
+
+  // Resolve final values, falling back to existing item fields
+  const finalTitle = title || item.title;
+  const finalDescription = description || item.description || null;
+  let finalTitleZh = titleZh || item.titleZh || null;
+  let finalDescriptionZh = descriptionZh || item.descriptionZh || null;
+
+  // Auto-translate only if the other language has no value yet
+  if (finalTitle && !finalTitleZh) {
+    finalTitleZh = await translateText(finalTitle, "en->zh");
+  }
+  if (finalDescriptionZh === null && finalDescription) {
+    finalDescriptionZh = await translateText(finalDescription, "en->zh");
+  }
 
   const updated = await prisma.item.update({
     where: { id },
     data: {
-      title: title ?? item.title,
-      titleZh: titleZh ?? item.titleZh,
-      description: description ?? item.description,
-      descriptionZh: descriptionZh ?? item.descriptionZh,
+      title: finalTitle,
+      titleZh: finalTitleZh,
+      description: finalDescription,
+      descriptionZh: finalDescriptionZh,
       imageUrls: Array.isArray(imageUrls) ? imageUrls : item.imageUrls,
       category: category ?? item.category,
       status: status ?? item.status,

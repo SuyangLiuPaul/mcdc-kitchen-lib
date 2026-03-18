@@ -57,6 +57,8 @@
     "markAvailable": "Mark as Available"
   },
   "itemForm": {
+    "titleLabel": "Title",
+    "descriptionLabel": "Description",
     "titleEn": "Title (English)",
     "titleZh": "Title (Chinese)",
     "descriptionEn": "Description (English)",

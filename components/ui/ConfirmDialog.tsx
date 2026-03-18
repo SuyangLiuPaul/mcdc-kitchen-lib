@@ -47,7 +47,7 @@ export default function ConfirmDialog({
         <div className="flex gap-3">
           <button
             onClick={onConfirm}
-            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-colors ${
+            className={`flex-1 py-2.5 rounded-lg text-sm font-medium transition-all active:scale-95 ${
               destructive
                 ? "bg-red-600 text-white hover:bg-red-700"
                 : "bg-indigo-600 text-white hover:bg-indigo-700"
@@ -57,7 +57,7 @@ export default function ConfirmDialog({
           </button>
           <button
             onClick={onCancel}
-            className="flex-1 border border-gray-300 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+            className="flex-1 border border-gray-300 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 transition-all active:scale-95"
           >
             {cancelLabel}
           </button>

@@ -90,7 +90,7 @@ export default function MyItemsList({
       <div className="flex justify-end mb-4">
         <button
           onClick={openAddForm}
-          className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700 font-medium transition-colors"
+          className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-indigo-700 font-medium transition-all active:scale-95"
         >
           + {t("addItem")}
         </button>
@@ -102,7 +102,7 @@ export default function MyItemsList({
           <p className="text-gray-400 mb-6">{t("noItems")}</p>
           <button
             onClick={openAddForm}
-            className="bg-indigo-600 text-white px-5 py-2.5 rounded-lg text-sm hover:bg-indigo-700 font-medium transition-colors"
+            className="bg-indigo-600 text-white px-5 py-2.5 rounded-lg text-sm hover:bg-indigo-700 font-medium transition-all active:scale-95"
           >
             + {t("addItem")}
           </button>
@@ -157,7 +157,7 @@ export default function MyItemsList({
                   <button
                     onClick={() => handleToggleStatus(item.id, status)}
                     disabled={isToggling}
-                    className={`w-full mt-3 text-xs py-1.5 rounded-lg font-medium border transition-colors disabled:opacity-50 ${
+                    className={`w-full mt-3 text-xs py-1.5 rounded-lg font-medium border transition-all active:scale-95 disabled:opacity-50 ${
                       isAvailable
                         ? "border-amber-200 text-amber-700 hover:bg-amber-50"
                         : "border-emerald-200 text-emerald-700 hover:bg-emerald-50"
@@ -169,13 +169,13 @@ export default function MyItemsList({
                   <div className="flex gap-2 mt-2">
                     <button
                       onClick={() => { setEditItem(item); setShowForm(true); }}
-                      className="flex-1 text-sm border border-gray-300 rounded-lg py-1.5 hover:bg-gray-50 transition-colors"
+                      className="flex-1 text-sm border border-gray-300 rounded-lg py-1.5 hover:bg-gray-50 transition-all active:scale-95"
                     >
                       {t("editItem")}
                     </button>
                     <button
                       onClick={() => setDeleteId(item.id)}
-                      className="flex-1 text-sm border border-red-200 text-red-600 rounded-lg py-1.5 hover:bg-red-50 transition-colors"
+                      className="flex-1 text-sm border border-red-200 text-red-600 rounded-lg py-1.5 hover:bg-red-50 transition-all active:scale-95"
                     >
                       {t("deleteItem")}
                     </button>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useUploadThing } from "@/lib/uploadthing-client";
 import { CATEGORIES, CATEGORY_ICONS, type Category } from "@/lib/categories";
 
@@ -27,15 +27,18 @@ export default function ItemForm({
 }) {
   const t = useTranslations("itemForm");
   const tCat = useTranslations("categories");
+  const locale = useLocale();
+  const isZh = locale === "zh";
 
-  // All state declared first so effects can safely reference them
+  // All state first
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [imageUrls, setImageUrls] = useState<string[]>(item?.imageUrls ?? []);
-  const [translating, setTranslating] = useState<Record<string, boolean>>({});
   const [formData, setFormData] = useState({
+    // Only the locale-appropriate text fields are shown; both are always sent
+    // so the server can auto-translate whichever is missing.
     title: item?.title ?? "",
     titleZh: item?.titleZh ?? "",
     description: item?.description ?? "",
@@ -44,32 +47,6 @@ export default function ItemForm({
     status: item?.status ?? "AVAILABLE",
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  async function autoTranslate(
-    sourceField: string,
-    targetField: string,
-    direction: "en->zh" | "zh->en"
-  ) {
-    const sourceValue = formData[sourceField as keyof typeof formData] as string;
-    const targetValue = formData[targetField as keyof typeof formData] as string;
-    if (!sourceValue.trim() || targetValue.trim()) return; // skip if source empty or target already filled
-    setTranslating((prev) => ({ ...prev, [targetField]: true }));
-    try {
-      const res = await fetch("/api/translate", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text: sourceValue, direction }),
-      });
-      const data = await res.json();
-      if (data.translation) {
-        setFormData((prev) => ({ ...prev, [targetField]: data.translation }));
-      }
-    } catch {
-      // silently ignore translation errors
-    } finally {
-      setTranslating((prev) => ({ ...prev, [targetField]: false }));
-    }
-  }
 
   const { startUpload } = useUploadThing("itemImage", {
     onUploadProgress: (p) => setUploadProgress(p),
@@ -86,7 +63,7 @@ export default function ItemForm({
     },
   });
 
-  // Escape key closes, body scroll locked while open
+  // Escape closes (blocked while uploading), body scroll locked
   useEffect(() => {
     document.body.style.overflow = "hidden";
     function onKey(e: KeyboardEvent) {
@@ -99,7 +76,7 @@ export default function ItemForm({
     };
   }, [onClose, uploading]);
 
-  // Prevent accidental navigation while uploading
+  // Warn before leaving while uploading
   useEffect(() => {
     if (!uploading) return;
     function onBeforeUnload(e: BeforeUnloadEvent) {
@@ -108,18 +85,6 @@ export default function ItemForm({
     window.addEventListener("beforeunload", onBeforeUnload);
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
   }, [uploading]);
-
-  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []);
-    if (files.length === 0) return;
-    const remaining = 4 - imageUrls.length;
-    const toUpload = files.slice(0, remaining);
-    setError(null);
-    setUploading(true);
-    setUploadProgress(0);
-    await startUpload(toUpload);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  }
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -131,6 +96,17 @@ export default function ItemForm({
     setImageUrls((prev) => prev.filter((_, i) => i !== index));
   }
 
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+    const toUpload = files.slice(0, 4 - imageUrls.length);
+    setError(null);
+    setUploading(true);
+    setUploadProgress(0);
+    await startUpload(toUpload);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (imageUrls.length === 0) {
@@ -140,13 +116,12 @@ export default function ItemForm({
     setError(null);
     setSaving(true);
     try {
-      const body = { ...formData, imageUrls };
       const url = item ? `/api/items/${item.id}` : "/api/items";
       const method = item ? "PUT" : "POST";
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ ...formData, imageUrls }),
       });
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
@@ -162,8 +137,13 @@ export default function ItemForm({
 
   const canUploadMore = imageUrls.length < 4;
 
+  // The fields shown depend on the current locale
+  const titleName = isZh ? "titleZh" : "title";
+  const descName = isZh ? "descriptionZh" : "description";
+  const titleValue = isZh ? formData.titleZh : formData.title;
+  const descValue = isZh ? formData.descriptionZh : formData.description;
+
   return (
-    /* Backdrop — click outside to close */
     <div
       className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
       onClick={(e) => { if (e.target === e.currentTarget && !uploading) onClose(); }}
@@ -178,7 +158,7 @@ export default function ItemForm({
             type="button"
             onClick={onClose}
             disabled={uploading}
-            className="text-gray-400 hover:text-gray-600 transition-colors text-xl leading-none disabled:opacity-30 disabled:cursor-not-allowed"
+            className="text-gray-400 hover:text-gray-600 transition-colors text-xl leading-none disabled:opacity-30 disabled:cursor-not-allowed active:scale-90"
             aria-label="Close"
           >
             ×
@@ -193,66 +173,35 @@ export default function ItemForm({
             </div>
           )}
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                {t("titleEn")} *
-              </label>
-              <input
-                name="title"
-                required
-                value={formData.title}
-                onChange={handleChange}
-                onBlur={() => autoTranslate("title", "titleZh", "en->zh")}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
-                {t("titleZh")}
-                {translating.titleZh && <TranslatingSpinner />}
-              </label>
-              <input
-                name="titleZh"
-                value={formData.titleZh}
-                onChange={handleChange}
-                onBlur={() => autoTranslate("titleZh", "title", "zh->en")}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              />
-            </div>
+          {/* Title */}
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">
+              {t("titleLabel")} <span className="text-red-500">*</span>
+            </label>
+            <input
+              name={titleName}
+              required
+              value={titleValue}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
-                {t("descriptionEn")}
-                {translating.description && <TranslatingSpinner />}
-              </label>
-              <textarea
-                name="description"
-                rows={3}
-                value={formData.description}
-                onChange={handleChange}
-                onBlur={() => autoTranslate("description", "descriptionZh", "en->zh")}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
-                {t("descriptionZh")}
-                {translating.descriptionZh && <TranslatingSpinner />}
-              </label>
-              <textarea
-                name="descriptionZh"
-                rows={3}
-                value={formData.descriptionZh}
-                onChange={handleChange}
-                onBlur={() => autoTranslate("descriptionZh", "description", "zh->en")}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
-              />
-            </div>
+          {/* Description */}
+          <div>
+            <label className="block text-xs font-medium text-gray-600 mb-1">
+              {t("descriptionLabel")}
+            </label>
+            <textarea
+              name={descName}
+              rows={3}
+              value={descValue}
+              onChange={handleChange}
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
+            />
           </div>
 
+          {/* Category + Status */}
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">
@@ -291,12 +240,10 @@ export default function ItemForm({
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-2">
               {t("image")} <span className="text-red-500">*</span>{" "}
-              <span className="text-gray-400 font-normal">
-                ({imageUrls.length}/4)
-              </span>
+              <span className="text-gray-400 font-normal">({imageUrls.length}/4)</span>
             </label>
 
-            {/* Uploaded image previews */}
+            {/* Previews */}
             {imageUrls.length > 0 && (
               <div className="grid grid-cols-2 gap-2 mb-3">
                 {imageUrls.map((url, i) => (
@@ -306,7 +253,7 @@ export default function ItemForm({
                     <button
                       type="button"
                       onClick={() => removeImage(i)}
-                      className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs leading-none transition-colors"
+                      className="absolute top-1 right-1 bg-black/60 hover:bg-black/80 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs leading-none transition-colors active:scale-90"
                       aria-label="Remove photo"
                     >
                       ×
@@ -321,7 +268,7 @@ export default function ItemForm({
               </div>
             )}
 
-            {/* Upload progress banner */}
+            {/* Upload progress */}
             {uploading && (
               <div className="bg-amber-50 border border-amber-300 rounded-lg px-4 py-3 mb-2">
                 <div className="flex items-center gap-2 mb-2">
@@ -343,7 +290,7 @@ export default function ItemForm({
               </div>
             )}
 
-            {/* Native file picker — hidden once 4 photos uploaded */}
+            {/* File picker */}
             {canUploadMore && !uploading && (
               <>
                 <input
@@ -357,7 +304,7 @@ export default function ItemForm({
                 <button
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-full border-2 border-dashed border-gray-300 rounded-xl py-6 flex flex-col items-center gap-2 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+                  className="w-full border-2 border-dashed border-gray-300 rounded-xl py-6 flex flex-col items-center gap-2 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors active:scale-[0.98]"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
@@ -374,14 +321,15 @@ export default function ItemForm({
             <button
               type="submit"
               disabled={saving || uploading}
-              className="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors"
+              className="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 transition-colors active:scale-[0.97]"
             >
               {saving ? t("saving") : t("save")}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 border border-gray-300 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors"
+              disabled={uploading}
+              className="flex-1 border border-gray-300 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50 transition-colors disabled:opacity-40 active:scale-[0.97]"
             >
               {t("cancel")}
             </button>
@@ -389,14 +337,5 @@ export default function ItemForm({
         </form>
       </div>
     </div>
-  );
-}
-
-function TranslatingSpinner() {
-  return (
-    <svg className="animate-spin h-3 w-3 text-indigo-400 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-    </svg>
   );
 }

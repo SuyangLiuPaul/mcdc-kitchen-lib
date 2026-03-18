@@ -57,6 +57,8 @@
     "markAvailable": "标记为可借用"
   },
   "itemForm": {
+    "titleLabel": "标题",
+    "descriptionLabel": "描述",
     "titleEn": "标题（英文）",
     "titleZh": "标题（中文）",
     "descriptionEn": "描述（英文）",
