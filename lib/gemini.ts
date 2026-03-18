@@ -17,12 +17,7 @@ export async function generateItemDescription(
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return { error: "GEMINI_API_KEY not set in environment" };
 
-  const prompt = `Describe this item in under 12 words in English and under 15 Chinese characters. Return ONLY JSON:
-{"en":"max 12 words","zh":"最多15字"}
-
-Example: {"en":"A robot that cleans windows automatically.","zh":"自动清洁窗户的机器人。"}
-
-Item: ${title}`;
+  const prompt = `You are writing item descriptions for a community lending app. Given an item name, write a short 1-sentence description in English and Chinese. Item: ${title}`;
 
   try {
     const res = await fetch(`${GEMINI_API_URL}?key=${apiKey}`, {
@@ -30,7 +25,19 @@ Item: ${title}`;
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 150, temperature: 0.4 },
+        generationConfig: {
+          maxOutputTokens: 200,
+          temperature: 0.4,
+          responseMimeType: "application/json",
+          responseSchema: {
+            type: "object",
+            properties: {
+              en: { type: "string" },
+              zh: { type: "string" },
+            },
+            required: ["en", "zh"],
+          },
+        },
       }),
       signal: AbortSignal.timeout(20000),
     });
