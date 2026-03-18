@@ -1,14 +1,19 @@
-import { Geist } from "next/font/google";
+import type { Metadata } from "next";
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'});
+export const metadata: Metadata = {
+  title: "MCDC Kitchen Library",
+};
 
-
-// Root layout — intentionally minimal.
-// The [locale]/layout.tsx handles <html>, <body>, and providers.
+// Root layout must include <html> and <body>.
+// The [locale]/layout.tsx sets the correct lang attribute and providers.
 export default function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  return children;
+  return (
+    <html>
+      <body>{children}</body>
+    </html>
+  );
 }

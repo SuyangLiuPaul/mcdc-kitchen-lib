@@ -31,15 +31,13 @@ export default async function LocaleLayout({
   const messages = await getMessages();
 
   return (
-    <html lang={locale}>
-      <body className={geist.className}>
-        <AuthSessionProvider>
-          <NextIntlClientProvider messages={messages}>
-            <Navbar />
-            <main className="min-h-screen bg-gray-50">{children}</main>
-          </NextIntlClientProvider>
-        </AuthSessionProvider>
-      </body>
-    </html>
+    <AuthSessionProvider>
+      <NextIntlClientProvider messages={messages} locale={locale}>
+        <div className={geist.className}>
+          <Navbar />
+          <main className="min-h-screen bg-gray-50">{children}</main>
+        </div>
+      </NextIntlClientProvider>
+    </AuthSessionProvider>
   );
 }
