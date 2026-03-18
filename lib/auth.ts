@@ -5,6 +5,9 @@ import { prisma } from "@/lib/prisma";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as NextAuthOptions["adapter"],
+  // JWT strategy works reliably in serverless (Netlify) and lets
+  // UploadThing middleware use getToken() to verify auth.
+  session: { strategy: "jwt" },
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -12,11 +15,19 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async session({ session, user }) {
-      if (session.user) {
-        session.user.id = user.id;
+    // On first sign-in, embed the DB user ID into the JWT.
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
+    },
+    // Surface the ID and role on the session object used by the app.
+    async session({ session, token }) {
+      if (session.user && token.id) {
+        session.user.id = token.id as string;
         const dbUser = await prisma.user.findUnique({
-          where: { id: user.id },
+          where: { id: token.id as string },
           select: { role: true },
         });
         session.user.role = dbUser?.role ?? "USER";
@@ -29,7 +40,6 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-// Convenience wrapper for server components / route handlers
 export function auth() {
   return getServerSession(authOptions);
 }
