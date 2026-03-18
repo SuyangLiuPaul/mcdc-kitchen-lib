@@ -35,7 +35,7 @@ Item name: ${title}`;
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: { maxOutputTokens: 200, temperature: 0.4 },
       }),
-      signal: AbortSignal.timeout(8000), // 8 s max — don't block the save
+      signal: AbortSignal.timeout(20000), // 20 s max
     });
 
     if (!res.ok) {
@@ -56,7 +56,8 @@ Item name: ${title}`;
     }
     return null;
   } catch (err) {
-    console.error("[gemini] exception:", err);
-    return null; // timeout, parse error, network — silent fail
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error("[gemini] exception:", msg);
+    return { error: msg };
   }
 }
