@@ -44,8 +44,9 @@ export default function ItemFilters({ total }: { total: number }) {
   const hasFilters = !!searchValue;
 
   return (
-    <div className="mt-6 space-y-3">
-      <div className="relative">
+    <div className="mt-6 space-y-4">
+      {/* Constrained, centred search bar */}
+      <div className="relative max-w-2xl mx-auto">
         <Search
           size={16}
           className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"
@@ -68,8 +69,9 @@ export default function ItemFilters({ total }: { total: number }) {
         )}
       </div>
 
+      {/* Results count + clear — left-aligned, bold */}
       <div className="flex items-center justify-between">
-        <p className="text-sm text-gray-400">
+        <p className="text-sm font-semibold text-gray-700">
           {t("itemCount", { count: total })}
         </p>
         {hasFilters && (

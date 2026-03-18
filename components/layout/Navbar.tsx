@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { useSession, signIn, signOut } from "next-auth/react";
 import { usePathname, useRouter } from "next/navigation";
-import { Menu, X, Loader2 } from "lucide-react";
+import { Menu, X, Loader2, Globe } from "lucide-react";
 
 export default function Navbar() {
   const t = useTranslations("nav");
@@ -119,11 +119,13 @@ export default function Navbar() {
       <button
         onClick={switchLocale}
         disabled={switchingLocale}
-        className={`text-sm font-medium border border-gray-300 rounded-md transition-all active:scale-95 disabled:opacity-60 flex items-center gap-1.5 ${
-          mobile ? "px-3 py-1" : "px-3 py-1.5"
-        } text-gray-600 hover:bg-gray-50`}
+        className={`flex items-center gap-1.5 text-sm font-medium text-gray-500 hover:text-indigo-600 transition-colors active:scale-95 disabled:opacity-60 ${
+          mobile ? "px-1 py-1" : ""
+        }`}
       >
-        {switchingLocale ? <Loader2 size={12} className="animate-spin" /> : null}
+        {switchingLocale
+          ? <Loader2 size={14} className="animate-spin" />
+          : <Globe size={14} />}
         {switchingLocale ? "..." : otherLocaleLabel}
       </button>
     );

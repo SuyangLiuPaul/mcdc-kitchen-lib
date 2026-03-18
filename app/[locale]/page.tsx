@@ -55,16 +55,31 @@ export default async function HomePage({
 function HomeHeader() {
   const t = useTranslations("home");
   return (
-    <div className="bg-gradient-to-br from-indigo-50 via-white to-blue-50 border-b border-indigo-100 py-16 px-6 text-center">
-      <h1 className="text-5xl font-bold text-indigo-900 tracking-tight">
-        {t("title")}
-      </h1>
-      <p className="mt-3 text-xl font-medium text-indigo-500 tracking-wide">
-        {t("tagline")}
-      </p>
-      <p className="mt-4 text-base text-gray-500 max-w-2xl mx-auto leading-relaxed">
-        {t("about")}
-      </p>
+    <div
+      className="relative border-b border-indigo-100 py-20 px-6 text-center overflow-hidden"
+      style={{
+        background: "radial-gradient(ellipse 80% 60% at 50% 0%, #eef2ff 0%, #ffffff 100%)",
+      }}
+    >
+      {/* Subtle dot pattern overlay */}
+      <div
+        className="absolute inset-0 opacity-[0.035] pointer-events-none"
+        style={{
+          backgroundImage: "radial-gradient(circle, #4f46e5 1px, transparent 1px)",
+          backgroundSize: "28px 28px",
+        }}
+      />
+      <div className="relative z-10">
+        <span className="inline-block bg-indigo-100 text-indigo-600 text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full mb-5">
+          {t("title")}
+        </span>
+        <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight">
+          {t("tagline")}
+        </h1>
+        <p className="mt-5 text-base text-gray-500 max-w-xl mx-auto leading-relaxed">
+          {t("about")}
+        </p>
+      </div>
     </div>
   );
 }
@@ -103,23 +118,23 @@ function HowItWorks() {
   return (
     <div className="bg-white border-b border-gray-100 py-12 px-6">
       <div className="max-w-4xl mx-auto">
-        <p className="text-center text-xs font-bold text-indigo-400 uppercase tracking-widest mb-10">
+        <p className="text-center text-xs font-extrabold text-indigo-600 uppercase tracking-widest mb-10">
           {t("howItWorks")}
         </p>
         <div className="relative grid grid-cols-1 sm:grid-cols-3 gap-8">
           {/* Connecting line — desktop only */}
-          <div className="hidden sm:block absolute top-8 left-[calc(16.67%+1rem)] right-[calc(16.67%+1rem)] h-px bg-indigo-100 z-0" />
+          <div className="hidden sm:block absolute top-8 left-[calc(16.67%+1rem)] right-[calc(16.67%+1rem)] h-0.5 bg-indigo-200 z-0" />
 
           {steps.map((step, i) => (
-            <div key={i} className="relative z-10 flex flex-col items-center text-center gap-4">
+            <div key={i} className="relative z-10 flex flex-col items-center text-center gap-3">
               {/* Icon circle */}
-              <div className="w-16 h-16 rounded-full bg-indigo-50 border-2 border-indigo-100 flex items-center justify-center text-indigo-500 shadow-sm">
+              <div className="w-16 h-16 rounded-full bg-indigo-600 flex items-center justify-center text-white shadow-md">
                 {step.icon}
               </div>
               {/* Step number */}
-              <span className="text-xs font-bold text-indigo-300 tracking-widest">{step.num}</span>
+              <span className="text-xs font-bold text-indigo-400 tracking-widest">{step.num}</span>
               {/* Text */}
-              <p className="text-sm text-gray-600 leading-relaxed max-w-[180px]">{step.text}</p>
+              <p className="text-sm text-gray-600 leading-loose max-w-[180px]">{step.text}</p>
             </div>
           ))}
         </div>
