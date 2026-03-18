@@ -45,6 +45,12 @@ export default function Navbar() {
               >
                 {t("myItems")}
               </Link>
+              <Link
+                href={`/${locale}/my-items`}
+                className="text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700"
+              >
+                + {t("addItem")}
+              </Link>
               {role === "ADMIN" && (
                 <Link
                   href={`/${locale}/admin`}

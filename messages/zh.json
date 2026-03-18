@@ -4,6 +4,7 @@
     "myItems": "我的物品",
     "admin": "管理面板",
     "login": "使用谷歌账号登录",
+    "addItem": "添加物品",
     "logout": "退出登录",
     "appName": "MCDC 厨房图书馆"
   },
