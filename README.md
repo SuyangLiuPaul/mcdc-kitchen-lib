@@ -1,19 +1,22 @@
-# Wok & Roll 🎸
+# GraceShare · 恩典流转站
 
-A bilingual community appliance-sharing platform built for the **MCDC church community**. Members can list household appliances they're willing to lend, and others can browse and borrow them — helping reduce waste and build community.
+> **Share the love, save the earth.** · 传递爱心，做资源的好管家
 
-**Live site:** [kitchenlib.netlify.app](https://kitchenlib.netlify.app)
+A bilingual (English / 中文) community lending platform where neighbours share household items instead of buying new ones — reducing waste, saving money, and passing on abundance to one another.
+
+**Live site → [kitchenlib.netlify.app](https://kitchenlib.netlify.app)**
 
 ---
 
 ## Features
 
-- **Browse & search** available items by name or category
-- **List items** to share with the community (with photo upload)
-- **Google sign-in** — no password needed
-- **Bilingual** — full English and Chinese (中文) support
-- **Admin dashboard** — manage all listings and users
-- **Role-based access** — USER and ADMIN roles
+- **Browse & search** items available to borrow in your community
+- **List items** with up to 4 photos, title auto-translated EN ↔ ZH
+- **AI descriptions** — Gemini 2.0 Flash auto-generates a short bilingual description from the item title
+- **Borrow flow** — contact the owner directly via email
+- **Google Sign-In** — one-click, no passwords
+- **Bilingual UI** — full English / Chinese with locale switching
+- **Admin panel** — manage all items and users, promote/demote admins
 
 ---
 
@@ -21,100 +24,48 @@ A bilingual community appliance-sharing platform built for the **MCDC church com
 
 | Layer | Technology |
 |---|---|
-| Framework | [Next.js 15](https://nextjs.org) (App Router) |
-| Language | TypeScript |
-| Styling | Tailwind CSS |
-| Auth | [NextAuth.js v4](https://next-auth.js.org) + Google OAuth |
-| Database | PostgreSQL ([Neon](https://neon.tech)) |
-| ORM | [Prisma v7](https://www.prisma.io) |
-| Image uploads | [UploadThing](https://uploadthing.com) |
-| i18n | [next-intl](https://next-intl-docs.vercel.app) |
-| Deployment | [Netlify](https://netlify.com) |
+| Framework | Next.js 16 (App Router, TypeScript) |
+| Styling | Tailwind CSS v4 |
+| Auth | NextAuth.js v4 · Google OAuth |
+| Database | PostgreSQL (Neon) · Prisma ORM |
+| File storage | UploadThing (up to 4 photos per item) |
+| i18n | next-intl (EN / ZH) |
+| AI | Google Gemini 2.0 Flash |
+| Deployment | Netlify |
 
 ---
 
 ## Getting Started
 
-### Prerequisites
+```bash
+# Install dependencies
+npm install
 
-- Node.js 18+
-- A PostgreSQL database (e.g. [Neon](https://neon.tech) free tier)
-- A Google OAuth app ([console.cloud.google.com](https://console.cloud.google.com))
-- An UploadThing account ([uploadthing.com](https://uploadthing.com))
+# Push database schema
+npx prisma db push
 
-### Setup
+# Run locally
+npm run dev
+```
 
-1. **Clone the repo**
-   ```bash
-   git clone https://github.com/SuyangLiuPaul/mcdc-kitchen-lib.git
-   cd mcdc-kitchen-lib
-   ```
+### Required environment variables (`.env.local`)
 
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
+```env
+DATABASE_URL=          # PostgreSQL connection string (Neon recommended)
+NEXTAUTH_SECRET=       # Random secret — openssl rand -base64 32
+NEXTAUTH_URL=          # http://localhost:3000 (locally)
+GOOGLE_CLIENT_ID=      # Google OAuth — console.cloud.google.com
+GOOGLE_CLIENT_SECRET=
+UPLOADTHING_TOKEN=     # UploadThing dashboard token (starts with eyJ...)
+GEMINI_API_KEY=        # Google AI Studio — aistudio.google.com
+```
 
-3. **Configure environment variables**
-
-   Create a `.env.local` file:
-   ```env
-   DATABASE_URL="postgresql://..."
-   NEXTAUTH_SECRET="your-secret"
-   NEXTAUTH_URL="http://localhost:3000"
-   GOOGLE_CLIENT_ID="..."
-   GOOGLE_CLIENT_SECRET="..."
-   UPLOADTHING_TOKEN="..."
-   ```
-
-4. **Set up the database**
-   ```bash
-   npx prisma migrate dev
-   ```
-
-5. **Run the development server**
-   ```bash
-   npm run dev
-   ```
-
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
-
----
-
-## Making Yourself an Admin
+### Making yourself an Admin
 
 After signing in once, run this SQL on your database:
 
 ```sql
-UPDATE "User" SET role = 'ADMIN' WHERE email = 'your-email@gmail.com';
-```
-
-The Admin Dashboard will then appear in the navbar.
-
----
-
-## Google OAuth — Authorized Redirect URIs
-
-In [Google Cloud Console](https://console.cloud.google.com), add these redirect URIs to your OAuth client:
-
-```
-http://localhost:3000/api/auth/callback/google
-https://kitchenlib.netlify.app/api/auth/callback/google
-```
-
----
-
-## Deployment
-
-The app is deployed on Netlify with automatic deploys from the `main` branch. Set these environment variables in **Netlify → Site → Environment variables**:
-
-```
-NEXTAUTH_URL=https://kitchenlib.netlify.app
-NEXTAUTH_SECRET=...
-GOOGLE_CLIENT_ID=...
-GOOGLE_CLIENT_SECRET=...
-DATABASE_URL=...
-UPLOADTHING_TOKEN=...
+UPDATE "User" SET role = 'ADMIN' WHERE email = 'your@email.com';
 ```
 
 ---
@@ -123,26 +74,37 @@ UPLOADTHING_TOKEN=...
 
 ```
 app/
-  [locale]/           # All pages (en/zh routing)
+  [locale]/           # All pages (en / zh routing)
     page.tsx          # Home — browse items
     my-items/         # Manage your listings
     items/[id]/       # Item detail
     admin/            # Admin dashboard
   api/
-    auth/             # NextAuth handler
-    items/            # CRUD API routes
+    items/            # CRUD + Gemini description generation
+    admin/users/      # User management (admin only)
+    translate/        # MyMemory bilingual translation proxy
 components/
-  items/              # ItemCard, ItemForm, ItemFilters, etc.
-  layout/             # Navbar, SessionProvider
+  items/              # ItemCard, ItemForm, ItemFilters, MyItemsList, etc.
+  layout/             # Navbar, Footer, ToastProvider
 messages/
-  en.json             # English translations
-  zh.json             # Chinese translations
+  en.json             # English strings
+  zh.json             # Chinese strings
+lib/
+  gemini.ts           # Gemini AI description generator
+  translate.ts        # MyMemory translation utility
 prisma/
   schema.prisma       # Database schema
 ```
 
 ---
 
+## Contact
+
+**Paul Liu · 刘苏阳**
+[Paul.sy.liu@gmail.com](mailto:Paul.sy.liu@gmail.com)
+
+---
+
 ## License
 
-Built with love for the MCDC community.
+Personal / community project. Free to fork and adapt for your own community.
