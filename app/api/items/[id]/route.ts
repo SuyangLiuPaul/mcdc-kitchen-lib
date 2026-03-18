@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { translateText } from "@/lib/translate";
+import { generateItemDescription } from "@/lib/gemini";
 
 async function getItemAndCheckAccess(id: string, userId: string) {
   const item = await prisma.item.findUnique({ where: { id } });
@@ -34,18 +35,24 @@ export async function PUT(
   const body = await request.json();
   let { title, titleZh, description, descriptionZh, imageUrls, category, status } = body;
 
-  // Resolve final values, falling back to existing item fields
+  // Resolve final title, falling back to existing
   const finalTitle = title || item.title;
-  const finalDescription = description || item.description || null;
   let finalTitleZh = titleZh || item.titleZh || null;
-  let finalDescriptionZh = descriptionZh || item.descriptionZh || null;
 
-  // Auto-translate only if the other language has no value yet
+  // Auto-translate title if other language still missing
   if (finalTitle && !finalTitleZh) {
     finalTitleZh = await translateText(finalTitle, "en->zh");
   }
-  if (finalDescriptionZh === null && finalDescription) {
-    finalDescriptionZh = await translateText(finalDescription, "en->zh");
+
+  // Regenerate description with Gemini only if item has none yet
+  let finalDescription = item.description;
+  let finalDescriptionZh = item.descriptionZh;
+  if (!item.description) {
+    const generated = await generateItemDescription(finalTitle);
+    if (generated) {
+      finalDescription = generated.en;
+      finalDescriptionZh = generated.zh;
+    }
   }
 
   const updated = await prisma.item.update({
@@ -53,8 +60,8 @@ export async function PUT(
     data: {
       title: finalTitle,
       titleZh: finalTitleZh,
-      description: finalDescription,
-      descriptionZh: finalDescriptionZh,
+      description: finalDescription || null,
+      descriptionZh: finalDescriptionZh || null,
       imageUrls: Array.isArray(imageUrls) ? imageUrls : item.imageUrls,
       category: category ?? item.category,
       status: status ?? item.status,
