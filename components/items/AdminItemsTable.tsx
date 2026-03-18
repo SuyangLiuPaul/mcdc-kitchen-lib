@@ -29,9 +29,11 @@ export default function AdminItemsTable({
   locale: string;
 }) {
   const t = useTranslations("admin");
+  const tCat = useTranslations("categories");
   const router = useRouter();
 
   async function deleteItem(id: string) {
+    if (!confirm(t("deleteConfirm"))) return;
     await fetch(`/api/items/${id}`, { method: "DELETE" });
     router.refresh();
   }
@@ -44,27 +46,30 @@ export default function AdminItemsTable({
           <table className="w-full text-sm border border-gray-200 rounded-xl overflow-hidden">
             <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
               <tr>
-                <th className="px-4 py-3 text-left">Title</th>
-                <th className="px-4 py-3 text-left">Category</th>
-                <th className="px-4 py-3 text-left">Status</th>
-                <th className="px-4 py-3 text-left">Owner</th>
-                <th className="px-4 py-3 text-left">Actions</th>
+                <th className="px-4 py-3 text-left">{t("colTitle")}</th>
+                <th className="px-4 py-3 text-left">{t("colCategory")}</th>
+                <th className="px-4 py-3 text-left">{t("colStatus")}</th>
+                <th className="px-4 py-3 text-left">{t("colOwner")}</th>
+                <th className="px-4 py-3 text-left">{t("colActions")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {items.map((item) => {
                 const title =
                   locale === "zh" && item.titleZh ? item.titleZh : item.title;
+                const categoryLabel = item.category
+                  ? tCat(item.category as "Kitchen" | "Cleaning" | "Tools" | "Other")
+                  : "—";
                 return (
                   <tr key={item.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 font-medium">{title}</td>
-                    <td className="px-4 py-3 text-gray-500">{item.category}</td>
+                    <td className="px-4 py-3 text-gray-500">{categoryLabel}</td>
                     <td className="px-4 py-3">
                       <span
-                        className={`px-2 py-0.5 rounded-full text-xs ${
+                        className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                           item.status === "AVAILABLE"
-                            ? "bg-green-100 text-green-700"
-                            : "bg-yellow-100 text-yellow-700"
+                            ? "bg-emerald-100 text-emerald-700"
+                            : "bg-amber-100 text-amber-700"
                         }`}
                       >
                         {item.status}
@@ -76,7 +81,7 @@ export default function AdminItemsTable({
                     <td className="px-4 py-3">
                       <button
                         onClick={() => deleteItem(item.id)}
-                        className="text-red-600 hover:underline text-xs"
+                        className="text-red-600 hover:text-red-800 text-xs font-medium hover:underline"
                       >
                         {t("deleteItem")}
                       </button>
@@ -95,9 +100,9 @@ export default function AdminItemsTable({
           <table className="w-full text-sm border border-gray-200 rounded-xl overflow-hidden">
             <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
               <tr>
-                <th className="px-4 py-3 text-left">Name</th>
-                <th className="px-4 py-3 text-left">Email</th>
-                <th className="px-4 py-3 text-left">Role</th>
+                <th className="px-4 py-3 text-left">{t("colName")}</th>
+                <th className="px-4 py-3 text-left">{t("colEmail")}</th>
+                <th className="px-4 py-3 text-left">{t("colRole")}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -107,7 +112,7 @@ export default function AdminItemsTable({
                   <td className="px-4 py-3 text-gray-500">{user.email}</td>
                   <td className="px-4 py-3">
                     <span
-                      className={`px-2 py-0.5 rounded-full text-xs ${
+                      className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                         user.role === "ADMIN"
                           ? "bg-purple-100 text-purple-700"
                           : "bg-gray-100 text-gray-600"

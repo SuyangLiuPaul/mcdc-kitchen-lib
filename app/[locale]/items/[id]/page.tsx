@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
 import { prisma } from "@/lib/prisma";
@@ -11,6 +12,7 @@ export default async function ItemDetailPage({
 }) {
   const { locale, id } = await params;
   const t = await getTranslations("item");
+  const tCat = await getTranslations("categories");
 
   const item = await prisma.item.findUnique({
     where: { id },
@@ -25,8 +27,18 @@ export default async function ItemDetailPage({
       ? item.descriptionZh
       : item.description;
 
+  const categoryLabel = item.category
+    ? tCat(item.category as "Kitchen" | "Cleaning" | "Tools" | "Other")
+    : null;
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
+      <Link
+        href={`/${locale}`}
+        className="inline-block mb-6 text-sm text-indigo-600 hover:text-indigo-800 font-medium"
+      >
+        {t("backToList")}
+      </Link>
       {item.imageUrl && (
         <div className="relative w-full h-80 rounded-xl overflow-hidden mb-6">
           <Image
@@ -52,9 +64,12 @@ export default async function ItemDetailPage({
           </span>
         </div>
 
-        {item.category && (
+        {categoryLabel && (
           <p className="text-sm text-gray-500">
-            {t("category")}: {item.category}
+            {t("category")}:{" "}
+            <span className="inline-block bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-medium text-xs">
+              {categoryLabel}
+            </span>
           </p>
         )}
 

@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 const CATEGORIES = ["Kitchen", "Cleaning", "Tools", "Other"];
 
@@ -12,6 +12,9 @@ export default function ItemFilters() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+
+  const [searchValue, setSearchValue] = useState(searchParams.get("search") ?? "");
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const createQueryString = useCallback(
     (updates: Record<string, string | null>) => {
@@ -28,19 +31,25 @@ export default function ItemFilters() {
     [searchParams]
   );
 
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      const qs = createQueryString({ search: searchValue || null });
+      router.push(`${pathname}?${qs}`);
+    }, 350);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [searchValue, pathname, createQueryString, router]);
+
   return (
     <div className="flex flex-col sm:flex-row gap-3 mt-6">
       {/* Search */}
       <input
         type="text"
         placeholder={t("searchPlaceholder")}
-        defaultValue={searchParams.get("search") ?? ""}
-        onChange={(e) => {
-          const qs = createQueryString({
-            search: e.target.value || null,
-          });
-          router.push(`${pathname}?${qs}`);
-        }}
+        value={searchValue}
+        onChange={(e) => setSearchValue(e.target.value)}
         className="flex-1 border border-gray-200 rounded-xl px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-sm"
       />
 
@@ -58,7 +67,7 @@ export default function ItemFilters() {
         <option value="all">{t("allCategories")}</option>
         {CATEGORIES.map((cat) => (
           <option key={cat} value={cat}>
-            {tCat(cat as keyof typeof tCat)}
+            {tCat(cat as "Kitchen" | "Cleaning" | "Tools" | "Other")}
           </option>
         ))}
       </select>

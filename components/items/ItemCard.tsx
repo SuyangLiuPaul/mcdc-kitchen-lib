@@ -20,7 +20,11 @@ export default function ItemCard({
   locale: string;
 }) {
   const t = useTranslations("item");
+  const tCat = useTranslations("categories");
   const title = locale === "zh" && item.titleZh ? item.titleZh : item.title;
+  const categoryLabel = item.category
+    ? tCat(item.category as "Kitchen" | "Cleaning" | "Tools" | "Other")
+    : null;
 
   return (
     <Link
@@ -53,9 +57,9 @@ export default function ItemCard({
 
       <div className="p-5">
         <h3 className="font-semibold text-gray-900 text-base truncate">{title}</h3>
-        {item.category && (
+        {categoryLabel && (
           <span className="inline-block mt-1.5 text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-medium">
-            {item.category}
+            {categoryLabel}
           </span>
         )}
         <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">

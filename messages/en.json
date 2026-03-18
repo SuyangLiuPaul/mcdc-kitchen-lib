@@ -31,7 +31,8 @@
     "contactOwner": "Contact Owner",
     "available": "Available",
     "borrowed": "Borrowed",
-    "addedOn": "Added on"
+    "addedOn": "Added on",
+    "backToList": "← Back to Browse"
   },
   "myItems": {
     "title": "My Items",
@@ -54,17 +55,36 @@
     "save": "Save Item",
     "cancel": "Cancel",
     "adding": "Adding...",
-    "saving": "Saving..."
+    "saving": "Saving...",
+    "editItem": "Edit Item",
+    "addItem": "Add New Item",
+    "photoReady": "✓ Photo ready",
+    "removePhoto": "Remove & re-upload",
+    "statusAvailable": "Available",
+    "statusBorrowed": "Borrowed"
   },
   "admin": {
     "title": "Admin Dashboard",
     "allItems": "All Items",
     "allUsers": "All Users",
     "deleteItem": "Delete",
-    "banUser": "Ban User"
+    "banUser": "Ban User",
+    "deleteConfirm": "Are you sure you want to delete this item?",
+    "colTitle": "Title",
+    "colCategory": "Category",
+    "colStatus": "Status",
+    "colOwner": "Owner",
+    "colActions": "Actions",
+    "colName": "Name",
+    "colEmail": "Email",
+    "colRole": "Role"
   },
   "auth": {
     "signInRequired": "Please sign in to access this page.",
     "signIn": "Sign In"
+  },
+  "footer": {
+    "tagline": "Sharing is caring — lend what you have, borrow what you need.",
+    "copyright": "MCDC Kitchen Library"
   }
 }

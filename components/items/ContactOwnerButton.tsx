@@ -13,7 +13,7 @@ export default function ContactOwnerButton({ email }: { email: string }) {
     return (
       <button
         onClick={() => signIn("google")}
-        className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+        className="text-sm bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
       >
         {t("contactOwner")}
       </button>
@@ -24,7 +24,7 @@ export default function ContactOwnerButton({ email }: { email: string }) {
     return (
       <a
         href={`mailto:${email}`}
-        className="text-sm text-blue-600 underline hover:text-blue-800"
+        className="text-sm text-indigo-600 underline hover:text-indigo-800"
       >
         {email}
       </a>
@@ -34,7 +34,7 @@ export default function ContactOwnerButton({ email }: { email: string }) {
   return (
     <button
       onClick={() => setRevealed(true)}
-      className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+      className="text-sm bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700"
     >
       {t("contactOwner")}
     </button>

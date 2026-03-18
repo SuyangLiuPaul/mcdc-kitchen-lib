@@ -45,7 +45,7 @@ export default function Navbar() {
                 {t("myItems")}
               </Link>
               <Link
-                href={`/${locale}/my-items`}
+                href={`/${locale}/my-items?add=1`}
                 className="text-base bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 font-medium transition-colors"
               >
                 + {t("addItem")}

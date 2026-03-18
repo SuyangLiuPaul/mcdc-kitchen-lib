@@ -31,7 +31,8 @@
     "contactOwner": "联系拥有者",
     "available": "可借用",
     "borrowed": "已借出",
-    "addedOn": "添加于"
+    "addedOn": "添加于",
+    "backToList": "← 返回列表"
   },
   "myItems": {
     "title": "我的物品",
@@ -54,17 +55,36 @@
     "save": "保存物品",
     "cancel": "取消",
     "adding": "添加中...",
-    "saving": "保存中..."
+    "saving": "保存中...",
+    "editItem": "编辑物品",
+    "addItem": "添加新物品",
+    "photoReady": "✓ 照片已就绪",
+    "removePhoto": "删除并重新上传",
+    "statusAvailable": "可借用",
+    "statusBorrowed": "已借出"
   },
   "admin": {
     "title": "管理面板",
     "allItems": "所有物品",
     "allUsers": "所有用户",
     "deleteItem": "删除",
-    "banUser": "封禁用户"
+    "banUser": "封禁用户",
+    "deleteConfirm": "确定要删除此物品吗？",
+    "colTitle": "标题",
+    "colCategory": "分类",
+    "colStatus": "状态",
+    "colOwner": "拥有者",
+    "colActions": "操作",
+    "colName": "姓名",
+    "colEmail": "邮箱",
+    "colRole": "角色"
   },
   "auth": {
     "signInRequired": "请登录以访问此页面。",
     "signIn": "登录"
+  },
+  "footer": {
+    "tagline": "分享是一种关爱——借出你拥有的，借入你需要的。",
+    "copyright": "MCDC 厨房图书馆"
   }
 }

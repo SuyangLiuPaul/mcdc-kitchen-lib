@@ -65,7 +65,7 @@ export default function ItemForm({
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
         <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          {item ? t("editItem" as never) ?? "Edit Item" : t("addItem" as never) ?? "Add Item"}
+          {item ? t("editItem") : t("addItem")}
         </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
@@ -149,8 +149,8 @@ export default function ItemForm({
                 onChange={handleChange}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
               >
-                <option value="AVAILABLE">Available</option>
-                <option value="BORROWED">Borrowed</option>
+                <option value="AVAILABLE">{t("statusAvailable")}</option>
+                <option value="BORROWED">{t("statusBorrowed")}</option>
               </select>
             </div>
           </div>
@@ -171,13 +171,13 @@ export default function ItemForm({
                   className="w-full h-44 object-cover"
                 />
                 <div className="flex items-center justify-between px-3 py-2 bg-gray-50">
-                  <span className="text-xs text-emerald-600 font-medium">✓ Photo ready</span>
+                  <span className="text-xs text-emerald-600 font-medium">{t("photoReady")}</span>
                   <button
                     type="button"
                     onClick={() => setImageUrl("")}
                     className="text-xs text-red-500 hover:text-red-700"
                   >
-                    Remove & re-upload
+                    {t("removePhoto")}
                   </button>
                 </div>
               </div>
