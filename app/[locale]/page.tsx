@@ -70,13 +70,13 @@ function HomeHeader() {
         }}
       />
       <div className="relative z-10">
-        <span className="inline-block bg-indigo-100 text-indigo-600 text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full mb-5">
+        <span className="inline-block bg-indigo-100 text-indigo-600 text-sm font-bold tracking-widest uppercase px-4 py-1.5 rounded-full mb-5">
           {t("heroPill")}
         </span>
         <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight">
           {t("tagline")}
         </h1>
-        <p className="mt-5 text-base text-gray-500 max-w-xl mx-auto leading-relaxed">
+        <p className="mt-5 text-lg text-gray-500 max-w-xl mx-auto leading-relaxed">
           {t("about")}
         </p>
       </div>
@@ -118,7 +118,7 @@ function HowItWorks() {
   return (
     <div className="bg-white border-b border-gray-100 py-12 px-6">
       <div className="max-w-4xl mx-auto">
-        <p className="text-center text-xs font-extrabold text-indigo-600 uppercase tracking-widest mb-10">
+        <p className="text-center text-sm font-extrabold text-indigo-600 uppercase tracking-widest mb-10">
           {t("howItWorks")}
         </p>
         <div className="relative grid grid-cols-1 sm:grid-cols-3 gap-8">
@@ -132,9 +132,9 @@ function HowItWorks() {
                 {step.icon}
               </div>
               {/* Step number */}
-              <span className="text-xs font-bold text-indigo-400 tracking-widest">{step.num}</span>
+              <span className="text-sm font-bold text-indigo-400 tracking-widest">{step.num}</span>
               {/* Text */}
-              <p className="text-sm text-gray-600 leading-loose max-w-[180px]">{step.text}</p>
+              <p className="text-base text-gray-600 leading-loose max-w-[220px]">{step.text}</p>
             </div>
           ))}
         </div>
