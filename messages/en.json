@@ -124,7 +124,8 @@
   },
   "footer": {
     "tagline": "Share the love, save the earth.",
-    "copyright": "GraceShare · MCDC"
+    "copyright": "GraceShare",
+    "contact": "Contact: Paul Liu"
   },
   "common": {
     "cancel": "Cancel",
