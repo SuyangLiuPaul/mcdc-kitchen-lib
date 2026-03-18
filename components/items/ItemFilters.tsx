@@ -45,8 +45,8 @@ export default function ItemFilters({ total }: { total: number }) {
 
   return (
     <div className="mt-6 space-y-4">
-      {/* Constrained, centred search bar */}
-      <div className="relative max-w-2xl mx-auto">
+      {/* Full-width search bar, left-aligned with the card grid */}
+      <div className="relative">
         <Search
           size={16}
           className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"

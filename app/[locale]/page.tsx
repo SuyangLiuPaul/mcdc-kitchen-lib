@@ -71,7 +71,7 @@ function HomeHeader() {
       />
       <div className="relative z-10">
         <span className="inline-block bg-indigo-100 text-indigo-600 text-xs font-bold tracking-widest uppercase px-3 py-1 rounded-full mb-5">
-          {t("title")}
+          {t("heroPill")}
         </span>
         <h1 className="text-4xl sm:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight">
           {t("tagline")}
