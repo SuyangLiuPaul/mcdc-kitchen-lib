@@ -28,24 +28,20 @@ export default function ItemForm({
   const t = useTranslations("itemForm");
   const tCat = useTranslations("categories");
 
-  // Escape key closes, body scroll locked while open
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape" && !uploading) onClose();
-    }
-    document.addEventListener("keydown", onKey);
-    return () => {
-      document.body.style.overflow = "";
-      document.removeEventListener("keydown", onKey);
-    };
-  }, [onClose, uploading]);
-
+  // All state declared first so effects can safely reference them
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [imageUrls, setImageUrls] = useState<string[]>(item?.imageUrls ?? []);
+  const [formData, setFormData] = useState({
+    title: item?.title ?? "",
+    titleZh: item?.titleZh ?? "",
+    description: item?.description ?? "",
+    descriptionZh: item?.descriptionZh ?? "",
+    category: item?.category ?? "Kitchen",
+    status: item?.status ?? "AVAILABLE",
+  });
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { startUpload } = useUploadThing("itemImage", {
@@ -62,6 +58,19 @@ export default function ItemForm({
       setError("Upload failed: " + err.message);
     },
   });
+
+  // Escape key closes, body scroll locked while open
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape" && !uploading) onClose();
+    }
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = "";
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [onClose, uploading]);
 
   // Prevent accidental navigation while uploading
   useEffect(() => {
@@ -82,18 +91,8 @@ export default function ItemForm({
     setUploading(true);
     setUploadProgress(0);
     await startUpload(toUpload);
-    // Reset input so same file can be re-selected if needed
     if (fileInputRef.current) fileInputRef.current.value = "";
   }
-
-  const [formData, setFormData] = useState({
-    title: item?.title ?? "",
-    titleZh: item?.titleZh ?? "",
-    description: item?.description ?? "",
-    descriptionZh: item?.descriptionZh ?? "",
-    category: item?.category ?? "Kitchen",
-    status: item?.status ?? "AVAILABLE",
-  });
 
   function handleChange(
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
