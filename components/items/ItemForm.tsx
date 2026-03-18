@@ -18,14 +18,16 @@ export default function ItemForm({
   item,
   onClose,
   onSaved,
+  bothLanguages = false,
 }: {
   item?: Item | null;
   onClose: () => void;
   onSaved: () => void;
+  bothLanguages?: boolean;
 }) {
   const t = useTranslations("itemForm");
   const locale = useLocale();
-  const isZh = locale === "zh";
+  const isZh = locale === "zh" && !bothLanguages;
 
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -126,6 +128,8 @@ export default function ItemForm({
 
   const titleName = isZh ? "titleZh" : "title";
   const titleValue = isZh ? formData.titleZh : formData.title;
+  const descName = isZh ? "descriptionZh" : "description";
+  const descValue = isZh ? formData.descriptionZh : formData.description;
   const canUploadMore = imageUrls.length < 4;
 
   return (
@@ -157,18 +161,37 @@ export default function ItemForm({
           )}
 
           {/* Title */}
-          <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
-              {t("titleLabel")} <span className="text-red-500">*</span>
-            </label>
-            <input
-              name={titleName}
-              required
-              value={titleValue}
-              onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-            />
-          </div>
+          {bothLanguages ? (
+            <div className="space-y-2">
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  {t("titleEn")} <span className="text-red-500">*</span>
+                </label>
+                <input name="title" required value={formData.title} onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  {t("titleZh")}
+                </label>
+                <input name="titleZh" value={formData.titleZh} onChange={handleChange}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400" />
+              </div>
+            </div>
+          ) : (
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                {t("titleLabel")} <span className="text-red-500">*</span>
+              </label>
+              <input
+                name={titleName}
+                required
+                value={titleValue}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+              />
+            </div>
+          )}
 
           {/* Status */}
           <div>
@@ -188,18 +211,37 @@ export default function ItemForm({
 
           {/* Description — shown only when editing (Gemini generates on create) */}
           {item && (
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                {t("descriptionLabel")}
-              </label>
-              <textarea
-                name={isZh ? "descriptionZh" : "description"}
-                value={isZh ? formData.descriptionZh : formData.description}
-                onChange={handleChange}
-                rows={3}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
-              />
-            </div>
+            bothLanguages ? (
+              <div className="space-y-2">
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    {t("descriptionEn")}
+                  </label>
+                  <textarea name="description" value={formData.description} onChange={handleChange}
+                    rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none" />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-gray-600 mb-1">
+                    {t("descriptionZh")}
+                  </label>
+                  <textarea name="descriptionZh" value={formData.descriptionZh} onChange={handleChange}
+                    rows={3} className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none" />
+                </div>
+              </div>
+            ) : (
+              <div>
+                <label className="block text-xs font-medium text-gray-600 mb-1">
+                  {t("descriptionLabel")}
+                </label>
+                <textarea
+                  name={descName}
+                  value={descValue}
+                  onChange={handleChange}
+                  rows={3}
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
+                />
+              </div>
+            )
           )}
 
           {/* Photos */}

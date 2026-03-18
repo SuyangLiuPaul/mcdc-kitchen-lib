@@ -418,6 +418,7 @@ export default function AdminItemsTable({
       {editItem && (
         <ItemForm
           item={editItem}
+          bothLanguages
           onClose={() => setEditItem(null)}
           onSaved={() => {
             setEditItem(null);
