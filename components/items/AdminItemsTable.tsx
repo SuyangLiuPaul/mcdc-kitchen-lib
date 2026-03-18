@@ -5,13 +5,11 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { useToast } from "@/components/layout/ToastProvider";
-import { CATEGORY_ICONS, type Category } from "@/lib/categories";
 
 type Item = {
   id: string;
   title: string;
   titleZh: string | null;
-  category: string | null;
   status: string;
   owner: { name: string | null; email: string | null };
 };
@@ -40,7 +38,6 @@ export default function AdminItemsTable({
   currentUserId: string;
 }) {
   const t = useTranslations("admin");
-  const tCat = useTranslations("categories");
   const tCommon = useTranslations("common");
   const { toast } = useToast();
   const router = useRouter();
@@ -111,7 +108,6 @@ export default function AdminItemsTable({
             <thead className="bg-gray-50 text-gray-500 uppercase text-xs">
               <tr>
                 <th className="px-4 py-3 text-left">{t("colTitle")}</th>
-                <th className="px-4 py-3 text-left">{t("colCategory")}</th>
                 <th className="px-4 py-3 text-left">{t("colStatus")}</th>
                 <th className="px-4 py-3 text-left">{t("colOwner")}</th>
                 <th className="px-4 py-3 text-left">{t("colActions")}</th>
@@ -120,13 +116,9 @@ export default function AdminItemsTable({
             <tbody className="divide-y divide-gray-100">
               {items.map((item) => {
                 const title = locale === "zh" && item.titleZh ? item.titleZh : item.title;
-                const categoryLabel = item.category
-                  ? `${CATEGORY_ICONS[item.category]} ${tCat(item.category as Category)}`
-                  : "—";
                 return (
                   <tr key={item.id} className="hover:bg-gray-50">
                     <td className="px-4 py-3 font-medium max-w-[180px] truncate">{title}</td>
-                    <td className="px-4 py-3 text-gray-500 whitespace-nowrap">{categoryLabel}</td>
                     <td className="px-4 py-3">
                       <span
                         className={`px-2 py-0.5 rounded-full text-xs font-semibold ${

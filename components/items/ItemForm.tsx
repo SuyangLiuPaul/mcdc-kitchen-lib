@@ -3,16 +3,12 @@
 import { useState, useEffect, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { useUploadThing } from "@/lib/uploadthing-client";
-import { CATEGORIES, CATEGORY_ICONS, type Category } from "@/lib/categories";
 
 type Item = {
   id: string;
   title: string;
   titleZh: string | null;
-  description: string | null;
-  descriptionZh: string | null;
   imageUrls: string[];
-  category: string | null;
   status: string;
 };
 
@@ -26,24 +22,17 @@ export default function ItemForm({
   onSaved: () => void;
 }) {
   const t = useTranslations("itemForm");
-  const tCat = useTranslations("categories");
   const locale = useLocale();
   const isZh = locale === "zh";
 
-  // All state first
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [imageUrls, setImageUrls] = useState<string[]>(item?.imageUrls ?? []);
   const [formData, setFormData] = useState({
-    // Only the locale-appropriate text fields are shown; both are always sent
-    // so the server can auto-translate whichever is missing.
     title: item?.title ?? "",
     titleZh: item?.titleZh ?? "",
-    description: item?.description ?? "",
-    descriptionZh: item?.descriptionZh ?? "",
-    category: item?.category ?? "Kitchen",
     status: item?.status ?? "AVAILABLE",
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -63,7 +52,6 @@ export default function ItemForm({
     },
   });
 
-  // Escape closes (blocked while uploading), body scroll locked
   useEffect(() => {
     document.body.style.overflow = "hidden";
     function onKey(e: KeyboardEvent) {
@@ -76,18 +64,15 @@ export default function ItemForm({
     };
   }, [onClose, uploading]);
 
-  // Warn before leaving while uploading
   useEffect(() => {
     if (!uploading) return;
-    function onBeforeUnload(e: BeforeUnloadEvent) {
-      e.preventDefault();
-    }
+    function onBeforeUnload(e: BeforeUnloadEvent) { e.preventDefault(); }
     window.addEventListener("beforeunload", onBeforeUnload);
     return () => window.removeEventListener("beforeunload", onBeforeUnload);
   }, [uploading]);
 
   function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
@@ -135,21 +120,16 @@ export default function ItemForm({
     }
   }
 
-  const canUploadMore = imageUrls.length < 4;
-
-  // The fields shown depend on the current locale
   const titleName = isZh ? "titleZh" : "title";
-  const descName = isZh ? "descriptionZh" : "description";
   const titleValue = isZh ? formData.titleZh : formData.title;
-  const descValue = isZh ? formData.descriptionZh : formData.description;
+  const canUploadMore = imageUrls.length < 4;
 
   return (
     <div
       className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
       onClick={(e) => { if (e.target === e.currentTarget && !uploading) onClose(); }}
     >
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
-        {/* Header */}
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100">
           <h2 className="text-lg font-semibold text-gray-900">
             {item ? t("editItem") : t("addItem")}
@@ -166,7 +146,6 @@ export default function ItemForm({
         </div>
 
         <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
-          {/* Error banner */}
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-2.5">
               {error}
@@ -187,63 +166,29 @@ export default function ItemForm({
             />
           </div>
 
-          {/* Description */}
+          {/* Status */}
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-1">
-              {t("descriptionLabel")}
+              {t("status")}
             </label>
-            <textarea
-              name={descName}
-              rows={3}
-              value={descValue}
+            <select
+              name="status"
+              value={formData.status}
               onChange={handleChange}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
-            />
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+            >
+              <option value="AVAILABLE">{t("statusAvailable")}</option>
+              <option value="BORROWED">{t("statusBorrowed")}</option>
+            </select>
           </div>
 
-          {/* Category + Status */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                {t("category")}
-              </label>
-              <select
-                name="category"
-                value={formData.category}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              >
-                {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>
-                    {CATEGORY_ICONS[c]} {tCat(c as Category)}
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
-                {t("status")}
-              </label>
-              <select
-                name="status"
-                value={formData.status}
-                onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
-              >
-                <option value="AVAILABLE">{t("statusAvailable")}</option>
-                <option value="BORROWED">{t("statusBorrowed")}</option>
-              </select>
-            </div>
-          </div>
-
-          {/* Photo upload */}
+          {/* Photos */}
           <div>
             <label className="block text-xs font-medium text-gray-600 mb-2">
               {t("image")} <span className="text-red-500">*</span>{" "}
               <span className="text-gray-400 font-normal">({imageUrls.length}/4)</span>
             </label>
 
-            {/* Previews */}
             {imageUrls.length > 0 && (
               <div className="grid grid-cols-2 gap-2 mb-3">
                 {imageUrls.map((url, i) => (
@@ -268,7 +213,6 @@ export default function ItemForm({
               </div>
             )}
 
-            {/* Upload progress */}
             {uploading && (
               <div className="bg-amber-50 border border-amber-300 rounded-lg px-4 py-3 mb-2">
                 <div className="flex items-center gap-2 mb-2">
@@ -290,7 +234,6 @@ export default function ItemForm({
               </div>
             )}
 
-            {/* File picker */}
             {canUploadMore && !uploading && (
               <>
                 <input
@@ -316,7 +259,6 @@ export default function ItemForm({
             )}
           </div>
 
-          {/* Actions */}
           <div className="flex gap-3 pt-1">
             <button
               type="submit"

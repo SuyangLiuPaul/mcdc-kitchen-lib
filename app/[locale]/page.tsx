@@ -8,15 +8,14 @@ export default async function HomePage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ search?: string; category?: string }>;
+  searchParams: Promise<{ search?: string }>;
 }) {
   const { locale } = await params;
-  const { search, category } = await searchParams;
+  const { search } = await searchParams;
 
   const items = await prisma.item.findMany({
     where: {
       status: "AVAILABLE",
-      ...(category && category !== "all" ? { category } : {}),
       ...(search
         ? {
             OR: [
@@ -31,7 +30,7 @@ export default async function HomePage({
     orderBy: { createdAt: "desc" },
   });
 
-  const hasFilters = !!(search || (category && category !== "all"));
+  const hasFilters = !!search;
 
   return (
     <div>

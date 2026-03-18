@@ -6,8 +6,6 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import ContactOwnerButton from "@/components/items/ContactOwnerButton";
 import ImageGallery from "@/components/items/ImageGallery";
-import { CATEGORY_ICONS, type Category } from "@/lib/categories";
-
 type Props = {
   params: Promise<{ locale: string; id: string }>;
 };
@@ -18,7 +16,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!item) return {};
   const title = locale === "zh" && item.titleZh ? item.titleZh : item.title;
   return {
-    title: `${title} — Wok & Roll`,
+    title: `${title} — GraceShare`,
     description: item.description ?? undefined,
     openGraph: item.imageUrls[0]
       ? { images: [{ url: item.imageUrls[0] }] }
@@ -29,7 +27,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ItemDetailPage({ params }: Props) {
   const { locale, id } = await params;
   const t = await getTranslations("item");
-  const tCat = await getTranslations("categories");
 
   const item = await prisma.item.findUnique({
     where: { id },
@@ -41,11 +38,6 @@ export default async function ItemDetailPage({ params }: Props) {
   const title = locale === "zh" && item.titleZh ? item.titleZh : item.title;
   const description =
     locale === "zh" && item.descriptionZh ? item.descriptionZh : item.description;
-
-  const categoryLabel = item.category
-    ? tCat(item.category as Category)
-    : null;
-  const categoryIcon = item.category ? CATEGORY_ICONS[item.category] : null;
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
@@ -72,15 +64,6 @@ export default async function ItemDetailPage({ params }: Props) {
             {item.status === "AVAILABLE" ? t("available") : t("borrowed")}
           </span>
         </div>
-
-        {categoryLabel && (
-          <p className="text-sm text-gray-500 flex items-center gap-1.5">
-            {t("category")}:
-            <span className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-medium text-xs">
-              {categoryIcon} {categoryLabel}
-            </span>
-          </p>
-        )}
 
         {description && (
           <p className="text-gray-700 leading-relaxed">{description}</p>

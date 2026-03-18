@@ -7,7 +7,6 @@ import { useRouter, useSearchParams } from "next/navigation";
 import ItemForm from "./ItemForm";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
 import { useToast } from "@/components/layout/ToastProvider";
-import { CATEGORY_ICONS, type Category } from "@/lib/categories";
 
 type Item = {
   id: string;
@@ -16,7 +15,6 @@ type Item = {
   description: string | null;
   descriptionZh: string | null;
   imageUrls: string[];
-  category: string | null;
   status: string;
 };
 
@@ -28,7 +26,6 @@ export default function MyItemsList({
   locale: string;
 }) {
   const t = useTranslations("myItems");
-  const tCat = useTranslations("categories");
   const tCommon = useTranslations("common");
   const { toast } = useToast();
   const router = useRouter();
@@ -111,8 +108,6 @@ export default function MyItemsList({
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {items.map((item) => {
             const title = locale === "zh" && item.titleZh ? item.titleZh : item.title;
-            const categoryLabel = item.category ? tCat(item.category as Category) : null;
-            const categoryIcon = item.category ? CATEGORY_ICONS[item.category] : null;
             const status = optimisticStatuses[item.id] ?? item.status;
             const isAvailable = status === "AVAILABLE";
             const isToggling = togglingId === item.id;
@@ -127,7 +122,7 @@ export default function MyItemsList({
                     <Image src={item.imageUrls[0]} alt={title} fill className="object-cover" />
                   ) : (
                     <div className="flex items-center justify-center h-full text-gray-300 text-4xl">
-                      {categoryIcon ?? "📦"}
+                      📦
                     </div>
                   )}
                   <span
@@ -148,11 +143,6 @@ export default function MyItemsList({
 
                 <div className="p-4">
                   <h3 className="font-semibold text-gray-900 truncate">{title}</h3>
-                  {categoryLabel && (
-                    <span className="inline-block mt-1 text-xs bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-medium">
-                      {categoryIcon} {categoryLabel}
-                    </span>
-                  )}
 
                   <button
                     onClick={() => handleToggleStatus(item.id, status)}
