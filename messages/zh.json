@@ -76,7 +76,9 @@
     "statusAvailable": "可借用",
     "statusBorrowed": "已借出",
     "mainPhoto": "主图",
-    "uploading": "上传中..."
+    "uploading": "上传中...",
+    "dontLeave": "请勿关闭此窗口",
+    "choosePhotos": "选择照片或点击此处"
   },
   "admin": {
     "title": "管理面板",

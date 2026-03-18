@@ -76,7 +76,9 @@
     "statusAvailable": "Available",
     "statusBorrowed": "Borrowed",
     "mainPhoto": "Main",
-    "uploading": "Uploading..."
+    "uploading": "Uploading...",
+    "dontLeave": "please don't close this window",
+    "choosePhotos": "Choose photos or tap here"
   },
   "admin": {
     "title": "Admin Dashboard",

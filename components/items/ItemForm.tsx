@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { UploadDropzone } from "@uploadthing/react";
+import { useUploadThing } from "@uploadthing/react";
 import type { OurFileRouter } from "@/lib/uploadthing";
 import { CATEGORIES, CATEGORY_ICONS, type Category } from "@/lib/categories";
 
@@ -33,19 +33,60 @@ export default function ItemForm({
   useEffect(() => {
     document.body.style.overflow = "hidden";
     function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape" && !uploading) onClose();
     }
     document.addEventListener("keydown", onKey);
     return () => {
       document.body.style.overflow = "";
       document.removeEventListener("keydown", onKey);
     };
-  }, [onClose]);
+  }, [onClose, uploading]);
 
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [imageUrls, setImageUrls] = useState<string[]>(item?.imageUrls ?? []);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const { startUpload } = useUploadThing<OurFileRouter>("itemImage", {
+    onUploadProgress: (p) => setUploadProgress(p),
+    onClientUploadComplete: (res) => {
+      setUploading(false);
+      setUploadProgress(0);
+      const newUrls = res.map((f) => f.ufsUrl ?? f.url).filter(Boolean) as string[];
+      setImageUrls((prev) => [...prev, ...newUrls].slice(0, 4));
+    },
+    onUploadError: (err) => {
+      setUploading(false);
+      setUploadProgress(0);
+      setError("Upload failed: " + err.message);
+    },
+  });
+
+  // Prevent accidental navigation while uploading
+  useEffect(() => {
+    if (!uploading) return;
+    function onBeforeUnload(e: BeforeUnloadEvent) {
+      e.preventDefault();
+    }
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [uploading]);
+
+  async function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+    const remaining = 4 - imageUrls.length;
+    const toUpload = files.slice(0, remaining);
+    setError(null);
+    setUploading(true);
+    setUploadProgress(0);
+    await startUpload(toUpload);
+    // Reset input so same file can be re-selected if needed
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
   const [formData, setFormData] = useState({
     title: item?.title ?? "",
     titleZh: item?.titleZh ?? "",
@@ -96,7 +137,7 @@ export default function ItemForm({
     /* Backdrop — click outside to close */
     <div
       className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
-      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+      onClick={(e) => { if (e.target === e.currentTarget && !uploading) onClose(); }}
     >
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
         {/* Header */}
@@ -107,7 +148,8 @@ export default function ItemForm({
           <button
             type="button"
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors text-xl leading-none"
+            disabled={uploading}
+            className="text-gray-400 hover:text-gray-600 transition-colors text-xl leading-none disabled:opacity-30 disabled:cursor-not-allowed"
             aria-label="Close"
           >
             ×
@@ -243,42 +285,51 @@ export default function ItemForm({
               </div>
             )}
 
-            {/* Dropzone — hidden once 4 photos uploaded */}
-            {canUploadMore && (
-              <div className="relative">
-                <UploadDropzone<OurFileRouter, "itemImage">
-                  endpoint="itemImage"
-                  onUploadBegin={() => setUploading(true)}
-                  onClientUploadComplete={(res) => {
-                    setUploading(false);
-                    const newUrls = res
-                      .map((f) => f.ufsUrl ?? f.url)
-                      .filter(Boolean) as string[];
-                    setImageUrls((prev) => [...prev, ...newUrls].slice(0, 4));
-                  }}
-                  onUploadError={(err) => {
-                    setUploading(false);
-                    setError("Upload failed: " + err.message);
-                  }}
-                  className="ut-label:text-sm ut-label:font-medium ut-label:text-gray-700 ut-allowed-content:text-xs ut-allowed-content:text-gray-400 ut-button:bg-indigo-600 ut-button:hover:bg-indigo-700 border-2 border-dashed border-gray-300 rounded-xl"
-                />
-
-                {/* Loading overlay */}
-                {uploading && (
-                  <div className="absolute inset-0 bg-white/85 rounded-xl flex flex-col items-center justify-center gap-2 z-10">
-                    <svg
-                      className="animate-spin h-8 w-8 text-indigo-600"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
-                    </svg>
-                    <span className="text-sm text-indigo-700 font-medium">{t("uploading")}</span>
-                  </div>
-                )}
+            {/* Upload progress banner */}
+            {uploading && (
+              <div className="bg-amber-50 border border-amber-300 rounded-lg px-4 py-3 mb-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <svg className="animate-spin h-4 w-4 text-amber-600 shrink-0" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+                  </svg>
+                  <span className="text-sm font-semibold text-amber-800">
+                    {t("uploading")} — {t("dontLeave")}
+                  </span>
+                </div>
+                <div className="w-full bg-amber-200 rounded-full h-2.5 overflow-hidden">
+                  <div
+                    className="bg-amber-500 h-2.5 rounded-full transition-all duration-300"
+                    style={{ width: `${uploadProgress}%` }}
+                  />
+                </div>
+                <p className="text-xs text-amber-700 mt-1 text-right">{uploadProgress}%</p>
               </div>
+            )}
+
+            {/* Native file picker — hidden once 4 photos uploaded */}
+            {canUploadMore && !uploading && (
+              <>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full border-2 border-dashed border-gray-300 rounded-xl py-6 flex flex-col items-center gap-2 text-gray-500 hover:border-indigo-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" />
+                  </svg>
+                  <span className="text-sm font-medium">{t("choosePhotos")}</span>
+                  <span className="text-xs text-gray-400">{t("imageHint")}</span>
+                </button>
+              </>
             )}
           </div>
 
