@@ -100,7 +100,17 @@
     "colEmail": "邮箱",
     "colRole": "角色",
     "totalItems": "件物品",
-    "totalUsers": "名用户"
+    "totalUsers": "名用户",
+    "makeAdmin": "设为管理员",
+    "demoteAdmin": "取消管理员",
+    "deleteUser": "删除用户",
+    "userDeleteSuccess": "用户已删除。",
+    "roleUpdated": "角色已更新。",
+    "you": "我",
+    "noActions": "—",
+    "deleteUserConfirm": "删除用户 {name} 及其所有物品？此操作无法撤销。",
+    "promoteConfirm": "将 {name} 设为管理员？他们将拥有管理面板的完整访问权限。",
+    "demoteConfirm": "取消 {name} 的管理员权限？"
   },
   "auth": {
     "signInRequired": "请登录以访问此页面。",

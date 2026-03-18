@@ -100,7 +100,17 @@
     "colEmail": "Email",
     "colRole": "Role",
     "totalItems": "items",
-    "totalUsers": "users"
+    "totalUsers": "users",
+    "makeAdmin": "Make Admin",
+    "demoteAdmin": "Remove Admin",
+    "deleteUser": "Delete User",
+    "userDeleteSuccess": "User deleted.",
+    "roleUpdated": "Role updated.",
+    "you": "you",
+    "noActions": "—",
+    "deleteUserConfirm": "Delete user {name} and all their items? This cannot be undone.",
+    "promoteConfirm": "Make {name} an admin? They will have full access to the admin panel.",
+    "demoteConfirm": "Remove admin role from {name}?"
   },
   "auth": {
     "signInRequired": "Please sign in to access this page.",

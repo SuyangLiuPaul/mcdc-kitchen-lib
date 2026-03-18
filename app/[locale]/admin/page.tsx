@@ -29,7 +29,7 @@ export default async function AdminPage({
   return (
     <div className="max-w-7xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">{t("title")}</h1>
-      <AdminItemsTable items={items} users={users} locale={locale} />
+      <AdminItemsTable items={items} users={users} locale={locale} currentUserId={session.user.id} />
     </div>
   );
 }
