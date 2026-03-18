@@ -2,8 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
-import { useUploadThing } from "@uploadthing/react";
-import type { OurFileRouter } from "@/lib/uploadthing";
+import { useUploadThing } from "@/lib/uploadthing-client";
 import { CATEGORIES, CATEGORY_ICONS, type Category } from "@/lib/categories";
 
 type Item = {
@@ -49,7 +48,7 @@ export default function ItemForm({
   const [imageUrls, setImageUrls] = useState<string[]>(item?.imageUrls ?? []);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { startUpload } = useUploadThing<OurFileRouter>("itemImage", {
+  const { startUpload } = useUploadThing("itemImage", {
     onUploadProgress: (p) => setUploadProgress(p),
     onClientUploadComplete: (res) => {
       setUploading(false);
