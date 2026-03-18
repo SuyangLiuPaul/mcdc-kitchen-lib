@@ -35,11 +35,11 @@ export default async function HomePage({
     <div>
       <HomeHeader />
       <div className="max-w-7xl mx-auto px-6 py-8">
-        <ItemFilters />
+        <ItemFilters total={items.length} />
         {items.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-6">
             {items.map((item: Parameters<typeof ItemCard>[0]["item"]) => (
               <ItemCard key={item.id} item={item} locale={locale} />
             ))}

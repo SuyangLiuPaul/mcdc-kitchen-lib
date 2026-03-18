@@ -49,6 +49,30 @@ export async function PUT(
   return NextResponse.json(updated);
 }
 
+export async function PATCH(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const session = await auth();
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { id } = await params;
+  const { item, allowed } = await getItemAndCheckAccess(id, session.user.id);
+
+  if (!item) return NextResponse.json({ error: "Not found" }, { status: 404 });
+  if (!allowed) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+
+  const newStatus = item.status === "AVAILABLE" ? "BORROWED" : "AVAILABLE";
+  const updated = await prisma.item.update({
+    where: { id },
+    data: { status: newStatus },
+  });
+
+  return NextResponse.json(updated);
+}
+
 export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> }

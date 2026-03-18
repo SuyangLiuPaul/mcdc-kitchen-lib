@@ -3,10 +3,9 @@
 import { useTranslations } from "next-intl";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { CATEGORIES, CATEGORY_ICONS, type Category } from "@/lib/categories";
 
-const CATEGORIES = ["Kitchen", "Cleaning", "Tools", "Other"];
-
-export default function ItemFilters() {
+export default function ItemFilters({ total }: { total: number }) {
   const t = useTranslations("home");
   const tCat = useTranslations("categories");
   const router = useRouter();
@@ -42,35 +41,42 @@ export default function ItemFilters() {
     };
   }, [searchValue, pathname, createQueryString, router]);
 
-  return (
-    <div className="flex flex-col sm:flex-row gap-3 mt-6">
-      {/* Search */}
-      <input
-        type="text"
-        placeholder={t("searchPlaceholder")}
-        value={searchValue}
-        onChange={(e) => setSearchValue(e.target.value)}
-        className="flex-1 border border-gray-200 rounded-xl px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-sm"
-      />
+  const activeCategory = searchParams.get("category") ?? "all";
 
-      {/* Category */}
-      <select
-        defaultValue={searchParams.get("category") ?? "all"}
-        onChange={(e) => {
-          const qs = createQueryString({
-            category: e.target.value === "all" ? null : e.target.value,
-          });
-          router.push(`${pathname}?${qs}`);
-        }}
-        className="border border-gray-200 rounded-xl px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-sm bg-white"
-      >
-        <option value="all">{t("allCategories")}</option>
-        {CATEGORIES.map((cat) => (
-          <option key={cat} value={cat}>
-            {tCat(cat as "Kitchen" | "Cleaning" | "Tools" | "Other")}
-          </option>
-        ))}
-      </select>
+  return (
+    <div className="mt-6 space-y-3">
+      {/* Search */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <input
+          type="text"
+          placeholder={t("searchPlaceholder")}
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
+          className="flex-1 border border-gray-200 rounded-xl px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-sm"
+        />
+        <select
+          value={activeCategory}
+          onChange={(e) => {
+            const qs = createQueryString({
+              category: e.target.value === "all" ? null : e.target.value,
+            });
+            router.push(`${pathname}?${qs}`);
+          }}
+          className="border border-gray-200 rounded-xl px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-sm bg-white"
+        >
+          <option value="all">{t("allCategories")}</option>
+          {CATEGORIES.map((cat) => (
+            <option key={cat} value={cat}>
+              {CATEGORY_ICONS[cat]} {tCat(cat as Category)}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {/* Result count */}
+      <p className="text-sm text-gray-400">
+        {t("itemCount", { count: total })}
+      </p>
     </div>
   );
 }

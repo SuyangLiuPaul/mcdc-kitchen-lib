@@ -14,6 +14,7 @@
     "searchPlaceholder": "搜索物品...",
     "allCategories": "全部分类",
     "noItems": "暂无物品。",
+    "itemCount": "共 {count} 件可借用",
     "available": "可借用",
     "borrowed": "已借出"
   },
@@ -41,7 +42,11 @@
     "editItem": "编辑",
     "deleteItem": "删除",
     "noItems": "您还没有分享任何物品。",
-    "deleteConfirm": "确定要删除此物品吗？"
+    "deleteConfirm": "确定要删除此物品吗？",
+    "statusAvailable": "可借用",
+    "statusBorrowed": "已借出",
+    "markBorrowed": "标记为已借出",
+    "markAvailable": "标记为可借用"
   },
   "itemForm": {
     "titleEn": "标题（英文）",

@@ -1,15 +1,32 @@
-import Image from "next/image";
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { getTranslations } from "next-intl/server";
+import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import ContactOwnerButton from "@/components/items/ContactOwnerButton";
+import ImageGallery from "@/components/items/ImageGallery";
+import { CATEGORY_ICONS, type Category } from "@/lib/categories";
 
-export default async function ItemDetailPage({
-  params,
-}: {
+type Props = {
   params: Promise<{ locale: string; id: string }>;
-}) {
+};
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale, id } = await params;
+  const item = await prisma.item.findUnique({ where: { id } });
+  if (!item) return {};
+  const title = locale === "zh" && item.titleZh ? item.titleZh : item.title;
+  return {
+    title: `${title} — Wok & Roll`,
+    description: item.description ?? undefined,
+    openGraph: item.imageUrls[0]
+      ? { images: [{ url: item.imageUrls[0] }] }
+      : undefined,
+  };
+}
+
+export default async function ItemDetailPage({ params }: Props) {
   const { locale, id } = await params;
   const t = await getTranslations("item");
   const tCat = await getTranslations("categories");
@@ -23,13 +40,12 @@ export default async function ItemDetailPage({
 
   const title = locale === "zh" && item.titleZh ? item.titleZh : item.title;
   const description =
-    locale === "zh" && item.descriptionZh
-      ? item.descriptionZh
-      : item.description;
+    locale === "zh" && item.descriptionZh ? item.descriptionZh : item.description;
 
   const categoryLabel = item.category
-    ? tCat(item.category as "Kitchen" | "Cleaning" | "Tools" | "Other")
+    ? tCat(item.category as Category)
     : null;
+  const categoryIcon = item.category ? CATEGORY_ICONS[item.category] : null;
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
@@ -39,43 +55,18 @@ export default async function ItemDetailPage({
       >
         {t("backToList")}
       </Link>
-      {item.imageUrls.length > 0 && (
-        <div className="mb-6 space-y-2">
-          {/* Main image */}
-          <div className="relative w-full h-80 rounded-xl overflow-hidden">
-            <Image
-              src={item.imageUrls[0]}
-              alt={title}
-              fill
-              className="object-cover"
-            />
-          </div>
-          {/* Thumbnail strip */}
-          {item.imageUrls.length > 1 && (
-            <div className="grid grid-cols-3 gap-2">
-              {item.imageUrls.slice(1).map((url, i) => (
-                <div key={url} className="relative h-24 rounded-lg overflow-hidden">
-                  <Image
-                    src={url}
-                    alt={`${title} photo ${i + 2}`}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+
+      {/* Interactive photo gallery (client component) */}
+      <ImageGallery images={item.imageUrls} title={title} />
 
       <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-gray-900">{title}</h1>
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="text-3xl font-bold text-gray-900 leading-tight">{title}</h1>
           <span
-            className={`px-3 py-1 rounded-full text-sm font-medium ${
+            className={`shrink-0 px-3 py-1 rounded-full text-sm font-semibold ${
               item.status === "AVAILABLE"
-                ? "bg-green-100 text-green-700"
-                : "bg-yellow-100 text-yellow-700"
+                ? "bg-emerald-100 text-emerald-700"
+                : "bg-amber-100 text-amber-700"
             }`}
           >
             {item.status === "AVAILABLE" ? t("available") : t("borrowed")}
@@ -83,10 +74,10 @@ export default async function ItemDetailPage({
         </div>
 
         {categoryLabel && (
-          <p className="text-sm text-gray-500">
-            {t("category")}:{" "}
-            <span className="inline-block bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-medium text-xs">
-              {categoryLabel}
+          <p className="text-sm text-gray-500 flex items-center gap-1.5">
+            {t("category")}:
+            <span className="inline-flex items-center gap-1 bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-full font-medium text-xs">
+              {categoryIcon} {categoryLabel}
             </span>
           </p>
         )}
@@ -95,20 +86,20 @@ export default async function ItemDetailPage({
           <p className="text-gray-700 leading-relaxed">{description}</p>
         )}
 
-        <div className="border-t pt-4 flex items-center justify-between">
+        <div className="border-t pt-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             {item.owner.image && (
               <Image
                 src={item.owner.image}
                 alt={item.owner.name ?? ""}
-                width={40}
-                height={40}
-                className="rounded-full"
+                width={44}
+                height={44}
+                className="rounded-full ring-2 ring-indigo-100"
               />
             )}
             <div>
               <p className="text-xs text-gray-400">{t("owner")}</p>
-              <p className="font-medium text-gray-800">{item.owner.name}</p>
+              <p className="font-semibold text-gray-800">{item.owner.name}</p>
             </div>
           </div>
           <ContactOwnerButton email={item.owner.email ?? ""} />

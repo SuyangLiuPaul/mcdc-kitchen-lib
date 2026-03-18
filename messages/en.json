@@ -14,6 +14,7 @@
     "searchPlaceholder": "Search items...",
     "allCategories": "All Categories",
     "noItems": "No items found.",
+    "itemCount": "{count, plural, =0 {No items} one {# item} other {# items}} available",
     "available": "Available",
     "borrowed": "Borrowed"
   },
@@ -41,7 +42,11 @@
     "editItem": "Edit",
     "deleteItem": "Delete",
     "noItems": "You haven't shared any items yet.",
-    "deleteConfirm": "Are you sure you want to delete this item?"
+    "deleteConfirm": "Are you sure you want to delete this item?",
+    "statusAvailable": "Available",
+    "statusBorrowed": "Borrowed",
+    "markBorrowed": "Mark as Borrowed",
+    "markAvailable": "Mark as Available"
   },
   "itemForm": {
     "titleEn": "Title (English)",

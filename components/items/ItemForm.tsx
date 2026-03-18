@@ -4,8 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { UploadDropzone } from "@uploadthing/react";
 import type { OurFileRouter } from "@/lib/uploadthing";
-
-const CATEGORIES = ["Kitchen", "Cleaning", "Tools", "Other"];
+import { CATEGORIES, CATEGORY_ICONS, type Category } from "@/lib/categories";
 
 type Item = {
   id: string;
@@ -31,6 +30,7 @@ export default function ItemForm({
   const tCat = useTranslations("categories");
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [imageUrls, setImageUrls] = useState<string[]>(item?.imageUrls ?? []);
   const [formData, setFormData] = useState({
     title: item?.title ?? "",
@@ -53,28 +53,61 @@ export default function ItemForm({
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setError(null);
     setSaving(true);
-    const body = { ...formData, imageUrls };
-    const url = item ? `/api/items/${item.id}` : "/api/items";
-    const method = item ? "PUT" : "POST";
-    await fetch(url, {
-      method,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(body),
-    });
-    setSaving(false);
-    onSaved();
+    try {
+      const body = { ...formData, imageUrls };
+      const url = item ? `/api/items/${item.id}` : "/api/items";
+      const method = item ? "PUT" : "POST";
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        throw new Error(data.error ?? "Something went wrong");
+      }
+      onSaved();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Something went wrong");
+    } finally {
+      setSaving(false);
+    }
   }
 
   const canUploadMore = imageUrls.length < 4;
 
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">
-          {item ? t("editItem") : t("addItem")}
-        </h2>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    /* Backdrop — click outside to close */
+    <div
+      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4"
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 pt-5 pb-4 border-b border-gray-100">
+          <h2 className="text-lg font-semibold text-gray-900">
+            {item ? t("editItem") : t("addItem")}
+          </h2>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-gray-400 hover:text-gray-600 transition-colors text-xl leading-none"
+            aria-label="Close"
+          >
+            ×
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="px-6 py-5 space-y-4">
+          {/* Error banner */}
+          {error && (
+            <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-2.5">
+              {error}
+            </div>
+          )}
+
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-gray-600 mb-1">
@@ -111,7 +144,7 @@ export default function ItemForm({
                 rows={3}
                 value={formData.description}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
               />
             </div>
             <div>
@@ -123,7 +156,7 @@ export default function ItemForm({
                 rows={3}
                 value={formData.descriptionZh}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
               />
             </div>
           </div>
@@ -141,7 +174,7 @@ export default function ItemForm({
               >
                 {CATEGORIES.map((c) => (
                   <option key={c} value={c}>
-                    {tCat(c as "Kitchen" | "Cleaning" | "Tools" | "Other")}
+                    {CATEGORY_ICONS[c]} {tCat(c as Category)}
                   </option>
                 ))}
               </select>
@@ -196,7 +229,7 @@ export default function ItemForm({
               </div>
             )}
 
-            {/* Upload dropzone — only shown when under the 4-photo limit */}
+            {/* Dropzone — hidden once 4 photos uploaded */}
             {canUploadMore && (
               <div className="relative">
                 <UploadDropzone<OurFileRouter, "itemImage">
@@ -209,46 +242,34 @@ export default function ItemForm({
                       .filter(Boolean) as string[];
                     setImageUrls((prev) => [...prev, ...newUrls].slice(0, 4));
                   }}
-                  onUploadError={(error) => {
+                  onUploadError={(err) => {
                     setUploading(false);
-                    alert("Upload failed: " + error.message);
+                    setError("Upload failed: " + err.message);
                   }}
                   className="ut-label:text-sm ut-label:font-medium ut-label:text-gray-700 ut-allowed-content:text-xs ut-allowed-content:text-gray-400 ut-button:bg-indigo-600 ut-button:hover:bg-indigo-700 border-2 border-dashed border-gray-300 rounded-xl"
                 />
 
                 {/* Loading overlay */}
                 {uploading && (
-                  <div className="absolute inset-0 bg-white/80 rounded-xl flex flex-col items-center justify-center gap-2 z-10">
+                  <div className="absolute inset-0 bg-white/85 rounded-xl flex flex-col items-center justify-center gap-2 z-10">
                     <svg
                       className="animate-spin h-8 w-8 text-indigo-600"
                       xmlns="http://www.w3.org/2000/svg"
                       fill="none"
                       viewBox="0 0 24 24"
                     >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                      />
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
                     </svg>
-                    <span className="text-sm text-indigo-700 font-medium">
-                      {t("uploading")}
-                    </span>
+                    <span className="text-sm text-indigo-700 font-medium">{t("uploading")}</span>
                   </div>
                 )}
               </div>
             )}
           </div>
 
-          <div className="flex gap-3 pt-2">
+          {/* Actions */}
+          <div className="flex gap-3 pt-1">
             <button
               type="submit"
               disabled={saving || uploading}
