@@ -33,7 +33,7 @@ Item name: ${title}`;
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { maxOutputTokens: 200, temperature: 0.4 },
+        generationConfig: { maxOutputTokens: 600, temperature: 0.4 },
       }),
       signal: AbortSignal.timeout(20000), // 20 s max
     });
