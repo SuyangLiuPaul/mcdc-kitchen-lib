@@ -6,11 +6,17 @@
     "login": "Login with Google",
     "addItem": "Add Item",
     "logout": "Logout",
-    "appName": "Wok & Roll"
+    "appName": "GraceShare"
   },
   "home": {
-    "title": "Kitchen Library",
+    "title": "GraceShare",
+    "tagline": "Share the love, save the earth.",
     "subtitle": "Borrow and share household appliances within the community.",
+    "about": "GraceShare is a community lending platform where neighbours share what they have and borrow what they need — reducing waste, saving money, and passing on God's abundance to one another.",
+    "howItWorks": "How it works",
+    "step1": "Browse items your neighbours are lending",
+    "step2": "Contact the owner to arrange pickup",
+    "step3": "Return it when you're done — and share your own!",
     "searchPlaceholder": "Search items...",
     "allCategories": "All Categories",
     "noItems": "No items listed yet. Be the first to share!",
@@ -117,8 +123,8 @@
     "signIn": "Sign In"
   },
   "footer": {
-    "tagline": "Sharing is caring — lend what you have, borrow what you need.",
-    "copyright": "MCDC Kitchen Library"
+    "tagline": "Share the love, save the earth.",
+    "copyright": "GraceShare · MCDC"
   },
   "common": {
     "cancel": "Cancel",

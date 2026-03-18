@@ -6,11 +6,17 @@
     "login": "使用谷歌账号登录",
     "addItem": "添加物品",
     "logout": "退出登录",
-    "appName": "锅来了"
+    "appName": "恩典流转站"
   },
   "home": {
-    "title": "厨房图书馆",
-    "subtitle": "在社区内借用和分享家用电器。",
+    "title": "恩典流转站",
+    "tagline": "传递爱心，做资源的好管家",
+    "subtitle": "在社区内借用和分享家用物品。",
+    "about": "恩典流转站是一个社区共享平台，让邻里之间互借家用物品，减少浪费，节省资金，共同管理好上帝所赐予我们的丰盛资源。",
+    "howItWorks": "如何使用",
+    "step1": "浏览邻居正在出借的物品",
+    "step2": "联系物主，安排取件时间",
+    "step3": "用完归还，也分享你自己的物品！",
     "searchPlaceholder": "搜索物品...",
     "allCategories": "全部分类",
     "noItems": "暂时还没有物品，快来第一个分享吧！",
@@ -117,8 +123,8 @@
     "signIn": "登录"
   },
   "footer": {
-    "tagline": "分享是一种关爱——借出你拥有的，借入你需要的。",
-    "copyright": "MCDC 厨房图书馆"
+    "tagline": "传递爱心，做资源的好管家",
+    "copyright": "恩典流转站 · MCDC"
   },
   "common": {
     "cancel": "取消",

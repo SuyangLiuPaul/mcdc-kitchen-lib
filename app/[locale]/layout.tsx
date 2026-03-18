@@ -13,8 +13,8 @@ import "../globals.css";
 const geist = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Wok & Roll",
-  description: "A community appliance sharing platform — borrow and lend kitchen gear with your neighbours.",
+  title: "GraceShare | 恩典流转站",
+  description: "Share the love, save the earth. A community platform to lend and borrow household items with your neighbours.",
 };
 
 export default async function LocaleLayout({
