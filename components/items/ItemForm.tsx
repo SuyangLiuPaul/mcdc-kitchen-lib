@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { useTranslations } from "next-intl";
-import { UploadButton } from "@uploadthing/react";
+import { UploadDropzone } from "@uploadthing/react";
 import type { OurFileRouter } from "@/lib/uploadthing";
 
 const CATEGORIES = ["Kitchen", "Cleaning", "Tools", "Other"];
@@ -65,6 +64,9 @@ export default function ItemForm({
   return (
     <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6">
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">
+          {item ? t("editItem" as never) ?? "Edit Item" : t("addItem" as never) ?? "Add Item"}
+        </h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-2 gap-3">
             <div>
@@ -153,30 +155,38 @@ export default function ItemForm({
             </div>
           </div>
 
+          {/* Photo upload */}
           <div>
-            <label className="block text-xs font-medium text-gray-600 mb-1">
-              {t("image")}
+            <label className="block text-xs font-medium text-gray-600 mb-2">
+              {t("image")} <span className="text-gray-400 font-normal">(optional)</span>
             </label>
-            <p className="text-xs text-gray-400 mb-2">{t("imageHint")}</p>
 
             {imageUrl ? (
-              <div className="relative w-full h-40 rounded-lg overflow-hidden border border-gray-200 mb-2">
-                <Image src={imageUrl} alt="Preview" fill className="object-cover" />
-                <button
-                  type="button"
-                  onClick={() => setImageUrl("")}
-                  className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-md hover:bg-black/80"
-                >
-                  Remove
-                </button>
+              /* Preview after upload */
+              <div className="rounded-xl overflow-hidden border border-gray-200">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={imageUrl}
+                  alt="Preview"
+                  className="w-full h-44 object-cover"
+                />
+                <div className="flex items-center justify-between px-3 py-2 bg-gray-50">
+                  <span className="text-xs text-emerald-600 font-medium">✓ Photo ready</span>
+                  <button
+                    type="button"
+                    onClick={() => setImageUrl("")}
+                    className="text-xs text-red-500 hover:text-red-700"
+                  >
+                    Remove & re-upload
+                  </button>
+                </div>
               </div>
             ) : (
-              <UploadButton<OurFileRouter, "itemImage">
+              <UploadDropzone<OurFileRouter, "itemImage">
                 endpoint="itemImage"
                 onUploadBegin={() => setUploading(true)}
                 onClientUploadComplete={(res) => {
                   setUploading(false);
-                  // ufsUrl is the v7 field; fall back to url for compatibility
                   const uploaded = res?.[0];
                   const url = uploaded?.ufsUrl ?? uploaded?.url;
                   if (url) setImageUrl(url);
@@ -184,12 +194,10 @@ export default function ItemForm({
                 onUploadError={(error) => {
                   setUploading(false);
                   console.error("Upload error:", error);
+                  alert("Upload failed: " + error.message);
                 }}
+                className="ut-label:text-sm ut-label:font-medium ut-label:text-gray-700 ut-allowed-content:text-xs ut-allowed-content:text-gray-400 ut-button:bg-indigo-600 ut-button:hover:bg-indigo-700 border-2 border-dashed border-gray-300 rounded-xl"
               />
-            )}
-
-            {uploading && (
-              <p className="text-xs text-indigo-500 mt-1">Uploading...</p>
             )}
           </div>
 
@@ -197,14 +205,14 @@ export default function ItemForm({
             <button
               type="submit"
               disabled={saving || uploading}
-              className="flex-1 bg-indigo-600 text-white py-2 rounded-lg text-sm hover:bg-indigo-700 disabled:opacity-50"
+              className="flex-1 bg-indigo-600 text-white py-2.5 rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50"
             >
               {saving ? t("saving") : t("save")}
             </button>
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 border border-gray-300 py-2 rounded-lg text-sm hover:bg-gray-50"
+              className="flex-1 border border-gray-300 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-50"
             >
               {t("cancel")}
             </button>
