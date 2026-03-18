@@ -29,7 +29,7 @@ export default function ItemFilters() {
   );
 
   return (
-    <div className="flex flex-col sm:flex-row gap-3 mt-4">
+    <div className="flex flex-col sm:flex-row gap-3 mt-6">
       {/* Search */}
       <input
         type="text"
@@ -41,7 +41,7 @@ export default function ItemFilters() {
           });
           router.push(`${pathname}?${qs}`);
         }}
-        className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="flex-1 border border-gray-200 rounded-xl px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-sm"
       />
 
       {/* Category */}
@@ -53,7 +53,7 @@ export default function ItemFilters() {
           });
           router.push(`${pathname}?${qs}`);
         }}
-        className="border border-gray-300 rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="border border-gray-200 rounded-xl px-5 py-3 text-base focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-sm bg-white"
       >
         <option value="all">{t("allCategories")}</option>
         {CATEGORIES.map((cat) => (

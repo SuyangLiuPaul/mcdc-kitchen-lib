@@ -1,36 +1,148 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# MCDC Kitchen Library
+
+A bilingual community appliance-sharing platform built for the **MCDC church community**. Members can list household appliances they're willing to lend, and others can browse and borrow them — helping reduce waste and build community.
+
+**Live site:** [kitchenlib.netlify.app](https://kitchenlib.netlify.app)
+
+---
+
+## Features
+
+- **Browse & search** available items by name or category
+- **List items** to share with the community (with photo upload)
+- **Google sign-in** — no password needed
+- **Bilingual** — full English and Chinese (中文) support
+- **Admin dashboard** — manage all listings and users
+- **Role-based access** — USER and ADMIN roles
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | [Next.js 15](https://nextjs.org) (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS |
+| Auth | [NextAuth.js v4](https://next-auth.js.org) + Google OAuth |
+| Database | PostgreSQL ([Neon](https://neon.tech)) |
+| ORM | [Prisma v7](https://www.prisma.io) |
+| Image uploads | [UploadThing](https://uploadthing.com) |
+| i18n | [next-intl](https://next-intl-docs.vercel.app) |
+| Deployment | [Netlify](https://netlify.com) |
+
+---
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Node.js 18+
+- A PostgreSQL database (e.g. [Neon](https://neon.tech) free tier)
+- A Google OAuth app ([console.cloud.google.com](https://console.cloud.google.com))
+- An UploadThing account ([uploadthing.com](https://uploadthing.com))
+
+### Setup
+
+1. **Clone the repo**
+   ```bash
+   git clone https://github.com/SuyangLiuPaul/mcdc-kitchen-lib.git
+   cd mcdc-kitchen-lib
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Configure environment variables**
+
+   Create a `.env.local` file:
+   ```env
+   DATABASE_URL="postgresql://..."
+   NEXTAUTH_SECRET="your-secret"
+   NEXTAUTH_URL="http://localhost:3000"
+   GOOGLE_CLIENT_ID="..."
+   GOOGLE_CLIENT_SECRET="..."
+   UPLOADTHING_TOKEN="..."
+   ```
+
+4. **Set up the database**
+   ```bash
+   npx prisma migrate dev
+   ```
+
+5. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+   Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+---
+
+## Making Yourself an Admin
+
+After signing in once, run this SQL on your database:
+
+```sql
+UPDATE "User" SET role = 'ADMIN' WHERE email = 'your-email@gmail.com';
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The Admin Dashboard will then appear in the navbar.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Google OAuth — Authorized Redirect URIs
 
-## Learn More
+In [Google Cloud Console](https://console.cloud.google.com), add these redirect URIs to your OAuth client:
 
-To learn more about Next.js, take a look at the following resources:
+```
+http://localhost:3000/api/auth/callback/google
+https://kitchenlib.netlify.app/api/auth/callback/google
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deployment
 
-## Deploy on Vercel
+The app is deployed on Netlify with automatic deploys from the `main` branch. Set these environment variables in **Netlify → Site → Environment variables**:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+```
+NEXTAUTH_URL=https://kitchenlib.netlify.app
+NEXTAUTH_SECRET=...
+GOOGLE_CLIENT_ID=...
+GOOGLE_CLIENT_SECRET=...
+DATABASE_URL=...
+UPLOADTHING_TOKEN=...
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Project Structure
+
+```
+app/
+  [locale]/           # All pages (en/zh routing)
+    page.tsx          # Home — browse items
+    my-items/         # Manage your listings
+    items/[id]/       # Item detail
+    admin/            # Admin dashboard
+  api/
+    auth/             # NextAuth handler
+    items/            # CRUD API routes
+components/
+  items/              # ItemCard, ItemForm, ItemFilters, etc.
+  layout/             # Navbar, SessionProvider
+messages/
+  en.json             # English translations
+  zh.json             # Chinese translations
+prisma/
+  schema.prisma       # Database schema
+```
+
+---
+
+## License
+
+Built with love for the MCDC community.

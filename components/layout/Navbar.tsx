@@ -16,7 +16,6 @@ export default function Navbar() {
   const otherLocale = locale === "en" ? "zh" : "en";
   const otherLocaleLabel = locale === "en" ? "中文" : "EN";
 
-  // Swap locale in the current path
   function switchLocale() {
     const newPath = pathname.replace(`/${locale}`, `/${otherLocale}`);
     router.push(newPath);
@@ -25,36 +24,36 @@ export default function Navbar() {
   const role = session?.user?.role;
 
   return (
-    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+    <nav className="bg-white border-b border-gray-200 sticky top-0 z-50 shadow-sm">
+      <div className="max-w-7xl mx-auto px-6 h-18 flex items-center justify-between" style={{ height: "4.5rem" }}>
         {/* Logo */}
         <Link
           href={`/${locale}`}
-          className="font-bold text-lg text-gray-900 hover:text-gray-600"
+          className="font-bold text-xl text-indigo-700 hover:text-indigo-900 tracking-tight"
         >
           {t("appName")}
         </Link>
 
         {/* Right side */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-5">
           {session && (
             <>
               <Link
                 href={`/${locale}/my-items`}
-                className="text-sm text-gray-600 hover:text-gray-900"
+                className="text-base text-gray-600 hover:text-gray-900 font-medium"
               >
                 {t("myItems")}
               </Link>
               <Link
                 href={`/${locale}/my-items`}
-                className="text-sm bg-blue-600 text-white px-3 py-1.5 rounded-lg hover:bg-blue-700"
+                className="text-base bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 font-medium transition-colors"
               >
                 + {t("addItem")}
               </Link>
               {role === "ADMIN" && (
                 <Link
                   href={`/${locale}/admin`}
-                  className="text-sm text-gray-600 hover:text-gray-900"
+                  className="text-base text-gray-600 hover:text-gray-900 font-medium"
                 >
                   {t("admin")}
                 </Link>
@@ -65,26 +64,26 @@ export default function Navbar() {
           {/* Locale switcher */}
           <button
             onClick={switchLocale}
-            className="text-sm px-3 py-1 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50"
+            className="text-sm px-3 py-1.5 rounded-md border border-gray-300 text-gray-600 hover:bg-gray-50 font-medium transition-colors"
           >
             {otherLocaleLabel}
           </button>
 
           {/* Auth */}
           {session ? (
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
               {session.user?.image && (
                 <Image
                   src={session.user.image}
                   alt={session.user.name ?? "User"}
-                  width={32}
-                  height={32}
-                  className="rounded-full"
+                  width={36}
+                  height={36}
+                  className="rounded-full ring-2 ring-indigo-100"
                 />
               )}
               <button
                 onClick={() => signOut()}
-                className="text-sm text-gray-500 hover:text-gray-800"
+                className="text-sm text-gray-500 hover:text-gray-800 font-medium"
               >
                 {t("logout")}
               </button>
@@ -92,7 +91,7 @@ export default function Navbar() {
           ) : (
             <button
               onClick={() => signIn("google")}
-              className="text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+              className="text-base bg-indigo-600 text-white px-5 py-2 rounded-lg hover:bg-indigo-700 font-medium transition-colors"
             >
               {t("login")}
             </button>
