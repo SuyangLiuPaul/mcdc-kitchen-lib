@@ -34,6 +34,7 @@ export default function ItemForm({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
   const [imageUrls, setImageUrls] = useState<string[]>(item?.imageUrls ?? []);
+  const [translating, setTranslating] = useState<Record<string, boolean>>({});
   const [formData, setFormData] = useState({
     title: item?.title ?? "",
     titleZh: item?.titleZh ?? "",
@@ -43,6 +44,32 @@ export default function ItemForm({
     status: item?.status ?? "AVAILABLE",
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  async function autoTranslate(
+    sourceField: string,
+    targetField: string,
+    direction: "en->zh" | "zh->en"
+  ) {
+    const sourceValue = formData[sourceField as keyof typeof formData] as string;
+    const targetValue = formData[targetField as keyof typeof formData] as string;
+    if (!sourceValue.trim() || targetValue.trim()) return; // skip if source empty or target already filled
+    setTranslating((prev) => ({ ...prev, [targetField]: true }));
+    try {
+      const res = await fetch("/api/translate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: sourceValue, direction }),
+      });
+      const data = await res.json();
+      if (data.translation) {
+        setFormData((prev) => ({ ...prev, [targetField]: data.translation }));
+      }
+    } catch {
+      // silently ignore translation errors
+    } finally {
+      setTranslating((prev) => ({ ...prev, [targetField]: false }));
+    }
+  }
 
   const { startUpload } = useUploadThing("itemImage", {
     onUploadProgress: (p) => setUploadProgress(p),
@@ -176,17 +203,20 @@ export default function ItemForm({
                 required
                 value={formData.title}
                 onChange={handleChange}
+                onBlur={() => autoTranslate("title", "titleZh", "en->zh")}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
                 {t("titleZh")}
+                {translating.titleZh && <TranslatingSpinner />}
               </label>
               <input
                 name="titleZh"
                 value={formData.titleZh}
                 onChange={handleChange}
+                onBlur={() => autoTranslate("titleZh", "title", "zh->en")}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
               />
             </div>
@@ -194,26 +224,30 @@ export default function ItemForm({
 
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
                 {t("descriptionEn")}
+                {translating.description && <TranslatingSpinner />}
               </label>
               <textarea
                 name="description"
                 rows={3}
                 value={formData.description}
                 onChange={handleChange}
+                onBlur={() => autoTranslate("description", "descriptionZh", "en->zh")}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-gray-600 mb-1">
+              <label className="block text-xs font-medium text-gray-600 mb-1 flex items-center gap-1">
                 {t("descriptionZh")}
+                {translating.descriptionZh && <TranslatingSpinner />}
               </label>
               <textarea
                 name="descriptionZh"
                 rows={3}
                 value={formData.descriptionZh}
                 onChange={handleChange}
+                onBlur={() => autoTranslate("descriptionZh", "description", "zh->en")}
                 className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
               />
             </div>
@@ -355,5 +389,14 @@ export default function ItemForm({
         </form>
       </div>
     </div>
+  );
+}
+
+function TranslatingSpinner() {
+  return (
+    <svg className="animate-spin h-3 w-3 text-indigo-400 inline" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z" />
+    </svg>
   );
 }
