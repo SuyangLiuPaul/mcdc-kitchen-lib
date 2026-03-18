@@ -8,6 +8,8 @@ type Item = {
   id: string;
   title: string;
   titleZh: string | null;
+  description: string | null;
+  descriptionZh: string | null;
   imageUrls: string[];
   status: string;
 };
@@ -33,6 +35,8 @@ export default function ItemForm({
   const [formData, setFormData] = useState({
     title: item?.title ?? "",
     titleZh: item?.titleZh ?? "",
+    description: item?.description ?? "",
+    descriptionZh: item?.descriptionZh ?? "",
     status: item?.status ?? "AVAILABLE",
   });
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -72,7 +76,7 @@ export default function ItemForm({
   }, [uploading]);
 
   function handleChange(
-    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>
   ) {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
@@ -181,6 +185,22 @@ export default function ItemForm({
               <option value="BORROWED">{t("statusBorrowed")}</option>
             </select>
           </div>
+
+          {/* Description — shown only when editing (Gemini generates on create) */}
+          {item && (
+            <div>
+              <label className="block text-xs font-medium text-gray-600 mb-1">
+                {t("descriptionLabel")}
+              </label>
+              <textarea
+                name={isZh ? "descriptionZh" : "description"}
+                value={isZh ? formData.descriptionZh : formData.description}
+                onChange={handleChange}
+                rows={3}
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400 resize-none"
+              />
+            </div>
+          )}
 
           {/* Photos */}
           <div>

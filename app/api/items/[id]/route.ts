@@ -44,10 +44,10 @@ export async function PUT(
     finalTitleZh = await translateText(finalTitle, "en->zh");
   }
 
-  // Regenerate description with Gemini only if item has none yet
-  let finalDescription = item.description;
-  let finalDescriptionZh = item.descriptionZh;
-  if (!item.description) {
+  // Use provided description if given, otherwise keep existing, otherwise generate
+  let finalDescription = (description as string | undefined)?.trim() || item.description;
+  let finalDescriptionZh = (descriptionZh as string | undefined)?.trim() || item.descriptionZh;
+  if (!finalDescription) {
     const gemini = await generateItemDescription(finalTitle);
     if (gemini?.result) {
       finalDescription = gemini.result.en;

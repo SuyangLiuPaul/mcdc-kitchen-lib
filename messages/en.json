@@ -94,6 +94,8 @@
     "allItems": "All Items",
     "allUsers": "All Users",
     "deleteItem": "Delete",
+    "editItem": "Edit",
+    "editSuccess": "Item updated.",
     "deleteSuccess": "Item deleted.",
     "banUser": "Ban User",
     "deleteConfirm": "Are you sure you want to delete this item? This cannot be undone.",

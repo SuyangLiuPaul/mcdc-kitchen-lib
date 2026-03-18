@@ -94,6 +94,8 @@
     "allItems": "所有物品",
     "allUsers": "所有用户",
     "deleteItem": "删除",
+    "editItem": "编辑",
+    "editSuccess": "物品已更新。",
     "deleteSuccess": "物品已删除。",
     "banUser": "封禁用户",
     "deleteConfirm": "确定要删除此物品吗？此操作无法撤销。",

@@ -6,6 +6,8 @@ type ItemWithOwner = {
   id: string;
   title: string;
   titleZh: string | null;
+  description: string | null;
+  descriptionZh: string | null;
   imageUrls: string[];
   status: string;
   owner: { name: string | null; image: string | null };
@@ -20,6 +22,7 @@ export default function ItemCard({
 }) {
   const t = useTranslations("item");
   const title = locale === "zh" && item.titleZh ? item.titleZh : item.title;
+  const description = locale === "zh" && item.descriptionZh ? item.descriptionZh : item.description;
 
   return (
     <Link
@@ -59,6 +62,9 @@ export default function ItemCard({
 
       <div className="p-4">
         <h3 className="font-semibold text-gray-900 text-base truncate">{title}</h3>
+        {description && (
+          <p className="text-xs text-gray-500 mt-1 line-clamp-2 leading-relaxed">{description}</p>
+        )}
         <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
           {item.owner.image && (
             <Image

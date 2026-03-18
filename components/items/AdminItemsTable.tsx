@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { Loader2, Sparkles, CheckCircle2, XCircle, ChevronDown, ChevronUp } from "lucide-react";
 import ConfirmDialog from "@/components/ui/ConfirmDialog";
+import ItemForm from "@/components/items/ItemForm";
 import { useToast } from "@/components/layout/ToastProvider";
 
 type Item = {
@@ -52,6 +53,7 @@ export default function AdminItemsTable({
 
   const [confirm, setConfirm] = useState<Confirm | null>(null);
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [editItem, setEditItem] = useState<Item | null>(null);
 
   // Description generation state
   const [generatingId, setGeneratingId] = useState<string | null>(null);
@@ -297,13 +299,23 @@ export default function AdminItemsTable({
                       {item.owner.name}
                     </td>
                     <td className="px-4 py-3">
-                      <button
-                        onClick={() => setConfirm({ type: "deleteItem", id: item.id })}
-                        disabled={loadingId === item.id}
-                        className="text-red-600 hover:text-red-800 text-xs font-medium hover:underline transition-colors active:scale-95 disabled:opacity-50"
-                      >
-                        {t("deleteItem")}
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <button
+                          onClick={() => setEditItem(item)}
+                          disabled={loadingId === item.id}
+                          className="text-indigo-600 hover:text-indigo-800 text-xs font-medium hover:underline transition-colors active:scale-95 disabled:opacity-50"
+                        >
+                          {t("editItem")}
+                        </button>
+                        <span className="text-gray-200">|</span>
+                        <button
+                          onClick={() => setConfirm({ type: "deleteItem", id: item.id })}
+                          disabled={loadingId === item.id}
+                          className="text-red-600 hover:text-red-800 text-xs font-medium hover:underline transition-colors active:scale-95 disabled:opacity-50"
+                        >
+                          {t("deleteItem")}
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 );
@@ -400,6 +412,18 @@ export default function AdminItemsTable({
           </table>
         </div>
       </section>
+
+      {editItem && (
+        <ItemForm
+          item={editItem}
+          onClose={() => setEditItem(null)}
+          onSaved={() => {
+            setEditItem(null);
+            toast(t("editSuccess"), "success");
+            router.refresh();
+          }}
+        />
+      )}
 
       {confirm && (
         <ConfirmDialog
