@@ -13,6 +13,8 @@ type Item = {
   title: string;
   titleZh: string | null;
   description: string | null;
+  descriptionZh: string | null;
+  imageUrls: string[];
   status: string;
   owner: { name: string | null; email: string | null };
 };
