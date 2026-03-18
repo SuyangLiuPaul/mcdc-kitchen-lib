@@ -15,7 +15,7 @@ export async function generateItemDescription(
   title: string
 ): Promise<GeminiResult> {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return null;
+  if (!apiKey) return { error: "GEMINI_API_KEY not set in environment" };
 
   const prompt = `You are a concise description writer for GraceShare, a community item-lending platform.
 
