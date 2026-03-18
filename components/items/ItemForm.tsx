@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 import { UploadButton } from "@uploadthing/react";
 import type { OurFileRouter } from "@/lib/uploadthing";
@@ -29,6 +30,7 @@ export default function ItemForm({
 }) {
   const t = useTranslations("itemForm");
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [imageUrl, setImageUrl] = useState(item?.imageUrl ?? "");
   const [formData, setFormData] = useState({
     title: item?.title ?? "",
@@ -74,7 +76,7 @@ export default function ItemForm({
                 required
                 value={formData.title}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
               />
             </div>
             <div>
@@ -85,7 +87,7 @@ export default function ItemForm({
                 name="titleZh"
                 value={formData.titleZh}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
               />
             </div>
           </div>
@@ -100,7 +102,7 @@ export default function ItemForm({
                 rows={3}
                 value={formData.description}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
               />
             </div>
             <div>
@@ -112,7 +114,7 @@ export default function ItemForm({
                 rows={3}
                 value={formData.descriptionZh}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
               />
             </div>
           </div>
@@ -126,7 +128,7 @@ export default function ItemForm({
                 name="category"
                 value={formData.category}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
               >
                 {CATEGORIES.map((c) => (
                   <option key={c} value={c}>
@@ -143,7 +145,7 @@ export default function ItemForm({
                 name="status"
                 value={formData.status}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"
               >
                 <option value="AVAILABLE">Available</option>
                 <option value="BORROWED">Borrowed</option>
@@ -156,25 +158,46 @@ export default function ItemForm({
               {t("image")}
             </label>
             <p className="text-xs text-gray-400 mb-2">{t("imageHint")}</p>
-            <UploadButton<OurFileRouter, "itemImage">
-              endpoint="itemImage"
-              onClientUploadComplete={(res) => {
-                if (res?.[0]?.ufsUrl) setImageUrl(res[0].ufsUrl);
-              }}
-              onUploadError={(error) => {
-                console.error("Upload error:", error);
-              }}
-            />
-            {imageUrl && (
-              <p className="text-xs text-green-600 mt-1">✓ Image uploaded</p>
+
+            {imageUrl ? (
+              <div className="relative w-full h-40 rounded-lg overflow-hidden border border-gray-200 mb-2">
+                <Image src={imageUrl} alt="Preview" fill className="object-cover" />
+                <button
+                  type="button"
+                  onClick={() => setImageUrl("")}
+                  className="absolute top-2 right-2 bg-black/60 text-white text-xs px-2 py-1 rounded-md hover:bg-black/80"
+                >
+                  Remove
+                </button>
+              </div>
+            ) : (
+              <UploadButton<OurFileRouter, "itemImage">
+                endpoint="itemImage"
+                onUploadBegin={() => setUploading(true)}
+                onClientUploadComplete={(res) => {
+                  setUploading(false);
+                  // ufsUrl is the v7 field; fall back to url for compatibility
+                  const uploaded = res?.[0];
+                  const url = uploaded?.ufsUrl ?? uploaded?.url;
+                  if (url) setImageUrl(url);
+                }}
+                onUploadError={(error) => {
+                  setUploading(false);
+                  console.error("Upload error:", error);
+                }}
+              />
+            )}
+
+            {uploading && (
+              <p className="text-xs text-indigo-500 mt-1">Uploading...</p>
             )}
           </div>
 
           <div className="flex gap-3 pt-2">
             <button
               type="submit"
-              disabled={saving}
-              className="flex-1 bg-blue-600 text-white py-2 rounded-lg text-sm hover:bg-blue-700 disabled:opacity-50"
+              disabled={saving || uploading}
+              className="flex-1 bg-indigo-600 text-white py-2 rounded-lg text-sm hover:bg-indigo-700 disabled:opacity-50"
             >
               {saving ? t("saving") : t("save")}
             </button>

@@ -11,8 +11,8 @@ import "../globals.css";
 const geist = Geist({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "MCDC Kitchen Library",
-  description: "A community appliance sharing platform for MCDC members.",
+  title: "Wok & Roll",
+  description: "A community appliance sharing platform — borrow and lend kitchen gear with your neighbours.",
 };
 
 export default async function LocaleLayout({

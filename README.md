@@ -1,4 +1,4 @@
-# MCDC Kitchen Library
+# Wok & Roll 🎸
 
 A bilingual community appliance-sharing platform built for the **MCDC church community**. Members can list household appliances they're willing to lend, and others can browse and borrow them — helping reduce waste and build community.
 
