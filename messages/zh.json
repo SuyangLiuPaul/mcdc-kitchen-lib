@@ -33,8 +33,11 @@
     "available": "可借用",
     "borrowed": "已借出",
     "backToList": "← 返回列表",
-    "copy": "复制",
-    "copied": "已复制！"
+    "copy": "复制链接",
+    "copied": "已复制！",
+    "share": "分享：",
+    "wechat": "微信二维码",
+    "wechatHint": "生成二维码，用微信扫一扫即可分享"
   },
   "myItems": {
     "title": "我的物品",

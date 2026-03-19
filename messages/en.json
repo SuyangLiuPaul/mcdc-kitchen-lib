@@ -34,7 +34,10 @@
     "borrowed": "Borrowed",
     "backToList": "← Back to Browse",
     "copy": "Copy",
-    "copied": "Copied!"
+    "copied": "Copied!",
+    "share": "Share:",
+    "wechat": "WeChat QR",
+    "wechatHint": "Opens a QR code — scan it with WeChat to share"
   },
   "myItems": {
     "title": "My Items",

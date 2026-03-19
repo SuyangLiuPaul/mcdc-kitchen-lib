@@ -45,11 +45,19 @@ export async function GET(req: NextRequest) {
     await new Promise((r) => setTimeout(r, 600));
   }
 
+  // Prune activity logs older than 90 days (runs opportunistically each cron tick)
+  const cutoff = new Date();
+  cutoff.setDate(cutoff.getDate() - 90);
+  const { count: pruned } = await prisma.activityLog.deleteMany({
+    where: { createdAt: { lt: cutoff } },
+  });
+
   return NextResponse.json({
     success: true,
     generated,
     total: items.length,
     logs,
+    pruned,
     timestamp: new Date().toISOString(),
   });
 }

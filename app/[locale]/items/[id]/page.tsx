@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import ContactOwnerButton from "@/components/items/ContactOwnerButton";
 import ImageGallery from "@/components/items/ImageGallery";
+import ShareButtons from "@/components/items/ShareButtons";
 type Props = {
   params: Promise<{ locale: string; id: string }>;
 };
@@ -86,6 +87,10 @@ export default async function ItemDetailPage({ params }: Props) {
             </div>
           </div>
           <ContactOwnerButton email={item.owner.email ?? ""} />
+        </div>
+
+        <div className="pt-4 border-t border-gray-100">
+          <ShareButtons title={title} />
         </div>
       </div>
     </div>

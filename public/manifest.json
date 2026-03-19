@@ -1,0 +1,24 @@
+{
+  "name": "GraceShare | 恩典流转站",
+  "short_name": "GraceShare",
+  "description": "Community lending platform — borrow what you need, share what you have.",
+  "start_url": "/en",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4f46e5",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
