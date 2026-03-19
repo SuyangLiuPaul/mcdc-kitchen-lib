@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { generateItemDescription } from "@/lib/gemini";
+import { logActivity } from "@/lib/activity";
 
 async function requireAdmin() {
   const session = await auth();
@@ -31,6 +32,14 @@ export async function POST(req: Request) {
       await prisma.item.update({
         where: { id: item.id },
         data: { description: gemini.result.en, descriptionZh: gemini.result.zh },
+      });
+      logActivity({
+        userId: session.user.id,
+        userName: session.user.name,
+        userEmail: session.user.email,
+        action: "DESCRIPTION_GENERATE",
+        target: item.title,
+        detail: "success",
       });
       return NextResponse.json({ success: true, generated: 1, total: 1 });
     }

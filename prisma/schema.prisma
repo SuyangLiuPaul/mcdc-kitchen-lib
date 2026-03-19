@@ -47,15 +47,33 @@ model VerificationToken {
 }
 
 model User {
-  id            String    @id @default(cuid())
+  id            String        @id @default(cuid())
   name          String?
-  email         String?   @unique
+  email         String?       @unique
   emailVerified DateTime?
   image         String?
-  role          String    @default("USER") // "USER" or "ADMIN"
+  role          String        @default("USER") // "USER" or "ADMIN"
   accounts      Account[]
   sessions      Session[]
   items         Item[]
+  activityLogs  ActivityLog[]
+}
+
+model ActivityLog {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+  userId    String?
+  userName  String?
+  userEmail String?
+  action    String   // LOGIN, ITEM_CREATE, ITEM_EDIT, ITEM_DELETE, STATUS_CHANGE, USER_ROLE_CHANGE, USER_DELETE, DESCRIPTION_GENERATE
+  target    String?  // item title or affected user name
+  detail    String?  // extra context e.g. "AVAILABLE → BORROWED"
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([action])
+  @@index([userId])
 }
 
 model Item {

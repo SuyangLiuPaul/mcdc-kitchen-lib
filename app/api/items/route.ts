@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { translateText } from "@/lib/translate";
 import { generateItemDescription } from "@/lib/gemini";
+import { logActivity } from "@/lib/activity";
 
 export async function POST(request: Request) {
   const session = await auth();
@@ -38,6 +39,14 @@ export async function POST(request: Request) {
       status: status || "AVAILABLE",
       ownerId: session.user.id,
     },
+  });
+
+  logActivity({
+    userId: session.user.id,
+    userName: session.user.name,
+    userEmail: session.user.email,
+    action: "ITEM_CREATE",
+    target: title,
   });
 
   return NextResponse.json(item, { status: 201 });

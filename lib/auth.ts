@@ -2,6 +2,7 @@ import { getServerSession, type NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { PrismaAdapter } from "@auth/prisma-adapter";
 import { prisma } from "@/lib/prisma";
+import { logActivity } from "@/lib/activity";
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma) as NextAuthOptions["adapter"],
@@ -33,6 +34,18 @@ export const authOptions: NextAuthOptions = {
         session.user.role = dbUser?.role ?? "USER";
       }
       return session;
+    },
+  },
+  events: {
+    async signIn({ user }) {
+      if (user.id) {
+        logActivity({
+          userId: user.id,
+          userName: user.name,
+          userEmail: user.email,
+          action: "LOGIN",
+        });
+      }
     },
   },
   pages: {

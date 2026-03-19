@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { translateText } from "@/lib/translate";
 import { generateItemDescription } from "@/lib/gemini";
+import { logActivity } from "@/lib/activity";
 
 async function getItemAndCheckAccess(id: string, userId: string) {
   const item = await prisma.item.findUnique({ where: { id } });
@@ -68,6 +69,14 @@ export async function PUT(
     },
   });
 
+  logActivity({
+    userId: session.user.id,
+    userName: session.user.name,
+    userEmail: session.user.email,
+    action: "ITEM_EDIT",
+    target: finalTitle,
+  });
+
   return NextResponse.json(updated);
 }
 
@@ -92,6 +101,15 @@ export async function PATCH(
     data: { status: newStatus },
   });
 
+  logActivity({
+    userId: session.user.id,
+    userName: session.user.name,
+    userEmail: session.user.email,
+    action: "STATUS_CHANGE",
+    target: item.title,
+    detail: `${item.status} → ${newStatus}`,
+  });
+
   return NextResponse.json(updated);
 }
 
@@ -111,5 +129,14 @@ export async function DELETE(
   if (!allowed) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
 
   await prisma.item.delete({ where: { id } });
+
+  logActivity({
+    userId: session.user.id,
+    userName: session.user.name,
+    userEmail: session.user.email,
+    action: "ITEM_DELETE",
+    target: item.title,
+  });
+
   return NextResponse.json({ success: true });
 }

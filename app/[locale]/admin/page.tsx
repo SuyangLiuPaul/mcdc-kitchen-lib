@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import AdminItemsTable from "@/components/items/AdminItemsTable";
+import ActivityLogPanel from "@/components/admin/ActivityLogPanel";
 
 export default async function AdminPage({
   params,
@@ -30,6 +31,9 @@ export default async function AdminPage({
     <div className="max-w-7xl mx-auto px-4 py-8">
       <h1 className="text-3xl font-bold text-gray-900 mb-8">{t("title")}</h1>
       <AdminItemsTable items={items} users={users} locale={locale} currentUserId={session.user.id} />
+      <div className="mt-12">
+        <ActivityLogPanel />
+      </div>
     </div>
   );
 }
