@@ -6,7 +6,7 @@ A bilingual (English / 中文) community lending platform where neighbours share
 
 Built for **MCDC** (Melbourne Chinese Discipleship Community).
 
-**Live site → [kitchenlib.netlify.app](https://kitchenlib.netlify.app)**
+**Live site → [graceshare.netlify.app](https://graceshare.netlify.app)**
 
 ---
 
@@ -244,11 +244,106 @@ The cron hits `GET /api/cron/generate-descriptions?secret=CRON_SECRET` — the `
 
 ## Deployment (Netlify)
 
-1. Connect the GitHub repo in the Netlify dashboard
-2. Set all environment variables under **Site Settings → Environment Variables**
-3. Build command: `npm run build`
-4. Publish directory: `.next`
-5. The Netlify Next.js plugin is auto-detected
+### Step 1 — Push code to GitHub
+
+Make sure your code is pushed to a GitHub repository (public or private).
+
+```bash
+git add .
+git commit -m "initial commit"
+git push origin main
+```
+
+---
+
+### Step 2 — Create a Netlify site
+
+1. Go to [netlify.com](https://www.netlify.com/) and log in
+2. Click **Add new site → Import an existing project**
+3. Choose **GitHub** and authorise Netlify to access your repos
+4. Select your repository (`mcdc-kitchen-lib`)
+5. Configure the build settings:
+   - **Branch to deploy:** `main`
+   - **Build command:** `npm run build`
+   - **Publish directory:** `.next`
+6. Click **Deploy site** — Netlify will auto-detect the Next.js plugin and install it
+
+---
+
+### Step 3 — Set environment variables in Netlify
+
+Go to **Site Settings → Environment Variables** and add every variable from your `.env.local`:
+
+| Variable | Value |
+|---|---|
+| `DATABASE_URL` | Your Neon PostgreSQL connection string |
+| `NEXTAUTH_URL` | `https://your-site.netlify.app` ← **must match your live URL** |
+| `NEXTAUTH_SECRET` | Run `openssl rand -base64 32` to generate one |
+| `GOOGLE_CLIENT_ID` | From Google Cloud Console |
+| `GOOGLE_CLIENT_SECRET` | From Google Cloud Console |
+| `UPLOADTHING_TOKEN` | From uploadthing.com dashboard |
+| `GEMINI_API_KEY` | From aistudio.google.com |
+| `CRON_SECRET` | Any random string (e.g. `my-secret-123`) |
+
+After adding all variables, go to **Deploys → Trigger deploy** to redeploy with the new env vars.
+
+---
+
+### Step 4 — Fix Google OAuth redirect URI
+
+This step is required or Google Sign-In will show **Error 400: redirect_uri_mismatch**.
+
+1. Go to [console.cloud.google.com](https://console.cloud.google.com/)
+2. Navigate to **APIs & Services → Credentials**
+3. Click your **OAuth 2.0 Client ID**
+4. Under **Authorized redirect URIs**, click **Add URI** and enter:
+   ```
+   https://your-site.netlify.app/api/auth/callback/google
+   ```
+5. Click **Save**
+
+> Keep `http://localhost:3000/api/auth/callback/google` in the list so local dev still works.
+
+---
+
+### Step 5 — Push the database schema
+
+If this is a fresh database (e.g. new Neon project), run this once to create the tables:
+
+```bash
+npx prisma db push
+```
+
+---
+
+### Step 6 — Set the first admin
+
+After signing in to the live site for the first time, promote yourself to admin directly in the database:
+
+```sql
+UPDATE "User" SET role = 'ADMIN' WHERE email = 'your@email.com';
+```
+
+You can run this in the Neon SQL editor at [console.neon.tech](https://console.neon.tech/).
+
+After that, admins can promote other users from the dashboard — no more SQL needed.
+
+---
+
+### Step 7 — Rename your site (optional)
+
+By default Netlify gives your site a random name. To use a custom name:
+
+1. Go to **Site Settings → General → Site details**
+2. Click **Change site name** and enter your preferred name (e.g. `graceshare`)
+3. Your site will be live at `https://graceshare.netlify.app`
+4. Remember to update `NEXTAUTH_URL` and the Google redirect URI to match the new URL
+
+---
+
+### Redeployment
+
+Every time you push to the `main` branch on GitHub, Netlify will automatically rebuild and redeploy the site. No manual steps needed.
 
 ---
 
